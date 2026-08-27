@@ -162,8 +162,51 @@ def test_questions_route_to_the_correct_intent(question, expected_intent):
 
 def test_unmatched_question_falls_back_honestly():
     result = qa.answer_question("What is the meaning of life?")
-    assert result.intent == "fallback_overview"
-    assert "couldn't map" in result.template_answer
+    assert result.intent in qa.DECLINED_INTENTS
+    assert "couldn't match" in result.template_answer
+
+
+def test_unmatched_question_does_not_dump_unrelated_kpis():
+    """Regression: an unmatched question used to be answered with the total
+    revenue/profit snapshot, which reads as if the system misunderstood the
+    question and then bluffed. It must decline cleanly instead.
+    """
+    result = qa.answer_question("What is the meaning of life?")
+    assert "revenue" not in result.template_answer.lower() or "48,089" not in result.template_answer
+    assert "gross profit" not in result.template_answer.lower()
+
+
+def test_meta_question_lists_capabilities_instead_of_dumping_numbers():
+    """'What questions can I ask?' is a legitimate product question -- it must
+    be answered with the capability menu, never with a KPI dump.
+    """
+    for phrasing in ("What questions can I ask?", "what can you do?",
+                      "What can you tell me about this business?"):
+        result = qa.answer_question(phrasing)
+        assert result.intent == "meta_capabilities", f"{phrasing!r} -> {result.intent}"
+        assert "gross profit" not in result.template_answer.lower()
+        # must actually surface real, askable questions
+        assert "Is revenue growth leading to stronger profitability?" in result.template_answer
+
+
+def test_out_of_scope_question_is_declined_politely():
+    result = qa.answer_question("What is the capital of France?")
+    assert result.intent == "out_of_scope"
+    assert "business data" in result.template_answer.lower()
+    assert "gross profit" not in result.template_answer.lower()
+
+
+@pytest.mark.parametrize("question", [
+    "Sales dey go up, profit dey follow?",
+    "Sales don go up, profit follow am?",
+    "We dey gain abi we no dey gain?",
+])
+def test_pidgin_growth_questions_route_to_profitability(question):
+    """Nigerian English / Pidgin phrasings of the hero question must resolve to
+    the same structured intent as the formal English version.
+    """
+    result = qa.answer_question(question)
+    assert result.intent == "growth_vs_profitability", f"{question!r} -> {result.intent}"
 
 
 # ---------------------------------------------------------------------------

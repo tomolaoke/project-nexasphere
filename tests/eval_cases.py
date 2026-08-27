@@ -7,9 +7,12 @@ questions -- not to unit-test a single function. Categories per the review
 brief: 10 factual, 10 analytical, 5 comparison, 5 anomaly, 5
 recommendation-oriented, 5 unsupported (= 40).
 
-Each case's `expected_intent` records what SHOULD happen. "fallback_overview"
-is a correct, expected outcome for the unsupported category -- it is not a
-failure. A case whose expected_intent is reachable but whose *answer content*
+Each case's `expected_intent` records what SHOULD happen. "unsupported" means
+the router must land on one of qa.DECLINED_INTENTS (an honest refusal), which
+is a correct outcome -- not a failure. Critically, a declined answer must not
+contain business numbers: answering "what's the weather?" with a revenue total
+is a bug, not a graceful fallback. A case whose expected_intent is reachable
+but whose *answer content*
 still wouldn't satisfy the question (a partial-match limitation) is called
 out explicitly in `note` rather than hidden by picking an easier example.
 """
@@ -62,11 +65,11 @@ EVAL_CASES = [
     ("Should we invest more in marketing?", "marketing_roi", "recommendation", None),
 
     # ---- Unsupported (5): genuinely out of scope, must fall back honestly ----
-    ("What is the meaning of life?", "fallback_overview", "unsupported", None),
-    ("What's the weather like today?", "fallback_overview", "unsupported", None),
-    ("Can you write me a poem about NexaSphere?", "fallback_overview", "unsupported", None),
-    ("What is our stock price?", "fallback_overview", "unsupported", None),
-    ("Can you fetch today's news headlines?", "fallback_overview", "unsupported", None),
+    ("What is the meaning of life?", "unsupported", "unsupported", None),
+    ("What's the weather like today?", "unsupported", "unsupported", None),
+    ("Can you write me a poem about NexaSphere?", "unsupported", "unsupported", None),
+    ("What is our stock price?", "unsupported", "unsupported", None),
+    ("Can you fetch today's news headlines?", "unsupported", "unsupported", None),
 ]
 
 assert len(EVAL_CASES) == 40, f"expected 40 eval cases, found {len(EVAL_CASES)}"

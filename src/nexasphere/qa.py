@@ -63,21 +63,96 @@ def _any(q: str, phrases: list[str]) -> bool:
 # ---------------------------------------------------------------------------
 # Concept word groups used by the profitability matcher (see module docstring)
 # ---------------------------------------------------------------------------
-_PROFIT_WORDS = ["profit", "profitability", "margin", "bottom line"]
+_PROFIT_WORDS = ["profit", "profitability", "margin", "bottom line", "gain"]
 _PROFIT_STRONG_PHRASES = [
     "making more money", "making money", "more money", "actually profitable",
     "profitable now", "keeping pace",
+    # Nigerian English / Pidgin: "profit dey follow?", "we dey gain?",
+    # "money dey enter?" all express the same growth-vs-profitability question.
+    "profit dey", "we dey gain", "money dey enter", "we dey make money",
+    "we dey profit", "gain dey follow",
 ]
-_REVENUE_WORDS = ["revenue", "sales", "top line", "turnover"]
+_REVENUE_WORDS = ["revenue", "sales", "top line", "turnover", "sale"]
 _COMPARISON_WORDS = [
     "growth", "growing", "grow", "increasing", "increase", "translat",
     "stronger", "improv", "declin", "pace with", "despite", "keeping up",
+    # Pidgin equivalents of "is it going up / is it following"
+    "dey go up", "don go up", "dey increase", "dey follow", "follow am", "dey rise",
 ]
 _RANKING_PHRASES = [
     "most revenue", "most profit", "top revenue", "top profit",
     "highest revenue", "highest profit", "best performing", "which products",
     "which stores", "which regions",
 ]
+
+
+_META_PHRASES = [
+    "what can i ask", "what questions", "what can you do", "what can you analyse",
+    "what can you analyze", "what can you tell me", "what do you understand",
+    "what data do you", "what analyses", "what analysis can", "how do i use",
+    "what are my options", "what else can", "give me examples", "suggest questions",
+    "help me get started", "what should i ask",
+    # Nigerian English / Pidgin phrasings for the same meta question
+    "wetin i fit ask", "wetin you fit do", "wetin you sabi", "wetin i go ask",
+    "which question i fit", "how i go use am",
+]
+
+_NON_BUSINESS_MARKERS = [
+    "capital of", "weather", "who is the president", "tell me a joke", "recipe",
+    "football score", "translate this", "write a poem", "what year is",
+]
+
+
+def _intent_meta(q: str) -> QAResult | None:
+    """Answers questions ABOUT the assistant rather than about the numbers.
+
+    Audit finding: "What questions can I ask?" previously fell through every
+    keyword matcher to fallback_overview, which dumped total revenue/profit at
+    a user who had asked a legitimate product question. Meta-understanding is
+    part of the product, not an unmatched-input error -- so this matcher runs
+    FIRST and answers from the capability list rather than from KPIs.
+    """
+    if not _any(q, _META_PHRASES):
+        return None
+
+    lines = ["I can help you understand this business using the data that's loaded. "
+              "Here's what you can ask me about:\n"]
+    for group, questions in QUESTION_GROUPS.items():
+        lines.append(f"\n**{group}**")
+        for question in questions:
+            lines.append(f"- {question}")
+    lines.append(
+        "\nYou can also phrase questions casually or in Nigerian English/Pidgin -- "
+        "for example, \"Sales dey go up, profit dey follow?\""
+    )
+    answer = "\n".join(lines)
+
+    # Returned as a template narration on purpose: this is a capability listing,
+    # not a numeric claim, so there is nothing for the AI layer to ground against
+    # and nothing it could usefully rephrase without risking distortion.
+    return QAResult(
+        "meta_capabilities", q,
+        {"supported_categories": list(QUESTION_GROUPS.keys())},
+        answer,
+        nlg.NarrationResult(text=answer, source="template", verified=True),
+    )
+
+
+def _intent_out_of_scope(q: str) -> QAResult | None:
+    """Politely declines clearly non-business questions instead of answering
+    them with an unrelated revenue dump.
+    """
+    if not _any(q, _NON_BUSINESS_MARKERS):
+        return None
+    answer = (
+        "I'm focused on helping you understand your business data. Try asking about "
+        "revenue, profitability, products, customers, inventory, delivery, marketing "
+        "or targets -- or ask \"What can I ask?\" to see the full list."
+    )
+    return QAResult(
+        "out_of_scope", q, {}, answer,
+        nlg.NarrationResult(text=answer, source="template", verified=True),
+    )
 
 
 def _intent_employee_performance(q: str) -> QAResult | None:
@@ -253,7 +328,11 @@ def _intent_growth_profitability(q: str) -> QAResult | None:
 
 
 # Ordered most-specific to least-specific. See module docstring.
+# Meta and out-of-scope run FIRST: a question about the assistant, or one that
+# isn't about business at all, must never be answered with business numbers.
 _INTENTS: list[Callable[[str], QAResult | None]] = [
+    _intent_meta,
+    _intent_out_of_scope,
     _intent_employee_performance,
     _intent_customer_segment,
     _intent_marketing_roi,
@@ -273,32 +352,56 @@ def answer_question(question: str) -> QAResult:
         if result is not None:
             return result
 
-    # Fallback: no rule matched -- give an honest, grounded overview instead
-    # of guessing at intent.
-    kpi = an.kpi_for_window(*an.dataset_date_range())
-    result = kpi.as_dict()
+    # Fallback: no rule matched. Deliberately does NOT dump KPIs -- answering an
+    # unmatched question with unrelated revenue totals (the old behaviour) reads
+    # as if the system misunderstood *and* is bluffing. Point at the capability
+    # menu instead, which is what the user actually needs to move forward.
     template = (
-        "I couldn't map that question to one of the supported business analyses "
-        "(profitability, returns, marketing ROI, inventory, delivery, customer segments, "
-        "store/employee performance, or targets). Here is the overall business snapshot instead: "
-        f"total revenue {result['revenue']:,.2f}, gross profit {result['gross_profit']:,.2f} "
-        f"({result['margin_pct']:.2f}% margin) across {result['orders']:,} orders. "
-        "Try rephrasing using one of the suggested questions."
+        "I couldn't match that to one of the business analyses I can run on this "
+        "dataset. I can help with profitability, revenue and growth, products and "
+        "returns, customers, inventory, delivery, marketing ROI, people, and targets.\n\n"
+        "Ask \"What can I ask?\" to see example questions for each area."
     )
-    return QAResult("fallback_overview", question, result, template, nlg.narrate_answer(question, result, template))
+    return QAResult(
+        "fallback_unmatched", question,
+        {"supported_categories": list(QUESTION_GROUPS.keys())},
+        template,
+        nlg.NarrationResult(text=template, source="template", verified=True),
+    )
 
 
-SUGGESTED_QUESTIONS = [
-    "Which products, stores or regions generate the most revenue and profit?",
-    "Is revenue growth leading to stronger profitability?",
-    "Which products have unusually high return rates?",
-    "Which marketing campaigns generate the best return on investment?",
-    "Which stores are experiencing stockouts or excess inventory?",
-    "Which delivery partners are associated with delays or poor customer ratings?",
-    "Which customer segments are the most valuable?",
-    "Which employees perform well based on both revenue and profitability?",
-    "Where is the business failing to meet its targets?",
-]
+# Grouped by business area so the meta-question answer ("What can I ask?") can
+# present them as a structured menu rather than a flat list.
+QUESTION_GROUPS: dict[str, list[str]] = {
+    "Performance & profitability": [
+        "Is revenue growth leading to stronger profitability?",
+        "Which products, stores or regions generate the most revenue and profit?",
+        "Where is the business failing to meet its targets?",
+    ],
+    "Customers": [
+        "Which customer segments are the most valuable?",
+    ],
+    "Products & returns": [
+        "Which products have unusually high return rates?",
+    ],
+    "Operations": [
+        "Which stores are experiencing stockouts or excess inventory?",
+        "Which delivery partners are associated with delays or poor customer ratings?",
+    ],
+    "Marketing": [
+        "Which marketing campaigns generate the best return on investment?",
+    ],
+    "People": [
+        "Which employees perform well based on both revenue and profitability?",
+    ],
+}
+
+SUGGESTED_QUESTIONS = [q for group in QUESTION_GROUPS.values() for q in group]
+
+# Intents that mean "I am not going to answer this with business numbers."
+# Both are correct, honest outcomes for an unsupported question -- which one
+# fires depends only on whether the question was clearly non-business.
+DECLINED_INTENTS = {"fallback_unmatched", "out_of_scope"}
 
 # Maps each suggested question (and known paraphrases) to the intent it must
 # resolve to. Used by tests to assert *correctness*, not just "not fallback".

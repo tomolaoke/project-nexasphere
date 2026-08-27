@@ -4,3 +4,7 @@ numpy>=1.26
 plotly>=5.22
 requests>=2.32
 pytest>=8.2
+# Multi-format ingestion (all free / open-source, no API keys, no network calls)
+openpyxl>=3.1      # XLSX
+pypdf>=4.2         # PDF text extraction
+python-docx>=1.1   # DOCX
