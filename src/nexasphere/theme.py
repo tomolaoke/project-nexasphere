@@ -558,6 +558,96 @@ def scene(name: str) -> str:
                 f' stroke-linecap="round" stroke-linejoin="round"/>'
                 f'</svg>')
 
+    if name == "revenue":
+        return (f'{o} aria-label="Rising revenue bars with a profit line lagging behind">'
+                f'<rect x="16" y="18" width="168" height="94" rx="12" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<rect x="34" y="74" width="18" height="26" rx="4" fill="{a2}" opacity=".55"/>'
+                f'<rect x="60" y="62" width="18" height="38" rx="4" fill="{a2}" opacity=".7"/>'
+                f'<rect x="86" y="50" width="18" height="50" rx="4" fill="{a}" opacity=".85"/>'
+                f'<rect x="112" y="38" width="18" height="62" rx="4" fill="{a}"/>'
+                f'<rect x="138" y="30" width="18" height="70" rx="4" fill="{a}"/>'
+                f'<polyline points="43,78 69,72 95,68 121,64 147,62" fill="none" stroke="{amber}"'
+                f' stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 4"/>'
+                f'<circle cx="147" cy="62" r="5" fill="{amber}" stroke="{card}" stroke-width="2"/>'
+                f'<text x="30" y="34" font-size="9" font-weight="700" fill="{p["muted"]}"'
+                f' font-family="Plus Jakarta Sans, sans-serif">REVENUE</text></svg>')
+
+    if name == "product":
+        return (f'{o} aria-label="Stacked product boxes ranked by performance">'
+                f'<rect x="24" y="60" width="44" height="44" rx="8" fill="{a2}" opacity=".8"/>'
+                f'<path d="M24 74h44" stroke="{card}" stroke-width="3"/>'
+                f'<rect x="78" y="40" width="44" height="64" rx="8" fill="{a}"/>'
+                f'<path d="M78 58h44" stroke="{card}" stroke-width="3"/>'
+                f'<rect x="132" y="70" width="44" height="34" rx="8" fill="{teal}" opacity=".85"/>'
+                f'<path d="M132 82h44" stroke="{card}" stroke-width="3"/>'
+                f'<path d="M100 24l4.5 9 10 1.5-7 7 1.5 10-9-4.5-9 4.5 1.5-10-7-7 10-1.5z" fill="{amber}"/>'
+                f'</svg>')
+
+    if name == "customer":
+        return (f'{o} aria-label="Three customer profiles of differing value">'
+                f'<circle cx="52" cy="52" r="15" fill="{skin}"/>'
+                f'<path d="M52 39a13 13 0 0 1 13 13H39a13 13 0 0 1 13-13z" fill="{skin2}"/>'
+                f'<path d="M32 100c2-14 10-21 20-21s18 7 20 21z" fill="{a2}"/>'
+                f'<circle cx="100" cy="44" r="18" fill="{skin}"/>'
+                f'<path d="M100 28a16 16 0 0 1 16 16H84a16 16 0 0 1 16-16z" fill="#4A3728"/>'
+                f'<path d="M76 100c2-16 11-24 24-24s22 8 24 24z" fill="{a}"/>'
+                f'<circle cx="148" cy="54" r="14" fill="{skin}"/>'
+                f'<path d="M148 42a12 12 0 0 1 12 12h-24a12 12 0 0 1 12-12z" fill="{skin2}"/>'
+                f'<path d="M130 100c2-13 9-19 18-19s16 6 18 19z" fill="{teal}"/>'
+                f'<path d="M100 14l3.5 7 7.5 1-5.5 5.5 1.5 7.5-7-3.5-7 3.5 1.5-7.5-5.5-5.5 7.5-1z" fill="{amber}"/>'
+                f'</svg>')
+
+    if name == "inventory":
+        return (f'{o} aria-label="Warehouse shelves with one bay empty and one overstocked">'
+                f'<rect x="20" y="24" width="76" height="86" rx="8" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<line x1="20" y1="52" x2="96" y2="52" stroke="{line}" stroke-width="2"/>'
+                f'<line x1="20" y1="80" x2="96" y2="80" stroke="{line}" stroke-width="2"/>'
+                f'<rect x="28" y="32" width="18" height="16" rx="3" fill="{a}"/>'
+                f'<rect x="50" y="32" width="18" height="16" rx="3" fill="{a2}"/>'
+                f'<rect x="28" y="60" width="18" height="16" rx="3" fill="{teal}"/>'
+                f'<text x="66" y="73" font-size="15" font-weight="800" fill="{rose}"'
+                f' font-family="Plus Jakarta Sans, sans-serif">!</text>'
+                f'<rect x="104" y="24" width="76" height="86" rx="8" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<line x1="104" y1="52" x2="180" y2="52" stroke="{line}" stroke-width="2"/>'
+                f'<line x1="104" y1="80" x2="180" y2="80" stroke="{line}" stroke-width="2"/>'
+                f'<rect x="110" y="30" width="16" height="18" rx="3" fill="{a}"/>'
+                f'<rect x="130" y="30" width="16" height="18" rx="3" fill="{a2}"/>'
+                f'<rect x="150" y="30" width="16" height="18" rx="3" fill="{a}"/>'
+                f'<rect x="110" y="58" width="16" height="18" rx="3" fill="{a2}"/>'
+                f'<rect x="130" y="58" width="16" height="18" rx="3" fill="{teal}"/>'
+                f'<rect x="150" y="58" width="16" height="18" rx="3" fill="{a}"/>'
+                f'<rect x="110" y="86" width="16" height="18" rx="3" fill="{a}"/>'
+                f'<rect x="130" y="86" width="16" height="18" rx="3" fill="{a2}"/>'
+                f'</svg>')
+
+    if name == "delivery":
+        return (f'{o} aria-label="A delivery van running behind a clock">'
+                f'<rect x="20" y="46" width="72" height="42" rx="7" fill="{a}"/>'
+                f'<path d="M92 58h22l16 16v14H92z" fill="{a2}"/>'
+                f'<rect x="98" y="62" width="16" height="12" rx="3" fill="{card}" opacity=".8"/>'
+                f'<circle cx="46" cy="94" r="11" fill="{p["ink"]}"/><circle cx="46" cy="94" r="4.5" fill="{card}"/>'
+                f'<circle cx="116" cy="94" r="11" fill="{p["ink"]}"/><circle cx="116" cy="94" r="4.5" fill="{card}"/>'
+                f'<line x1="6" y1="56" x2="18" y2="56" stroke="{a2}" stroke-width="3" stroke-linecap="round"/>'
+                f'<line x1="2" y1="68" x2="18" y2="68" stroke="{a2}" stroke-width="3" stroke-linecap="round" opacity=".6"/>'
+                f'<circle cx="160" cy="46" r="24" fill="{card}" stroke="{rose}" stroke-width="4"/>'
+                f'<path d="M160 32v14l10 6" stroke="{rose}" stroke-width="4" fill="none"'
+                f' stroke-linecap="round" stroke-linejoin="round"/></svg>')
+
+    if name == "targets":
+        return (f'{o} aria-label="A dartboard with an arrow near the centre and a spend gauge">'
+                f'<circle cx="66" cy="64" r="42" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<circle cx="66" cy="64" r="30" fill="{a}" opacity=".16"/>'
+                f'<circle cx="66" cy="64" r="18" fill="{a}" opacity=".3"/>'
+                f'<circle cx="66" cy="64" r="7" fill="{rose}"/>'
+                f'<line x1="98" y1="30" x2="70" y2="60" stroke="{p["ink"]}" stroke-width="4" stroke-linecap="round"/>'
+                f'<path d="M98 30l12-6-6 12z" fill="{amber}"/>'
+                f'<path d="M126 96a34 34 0 0 1 68 0z" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<path d="M126 96a34 34 0 0 1 20-31l14 31z" fill="{rose}" opacity=".8"/>'
+                f'<path d="M146 65a34 34 0 0 1 34 0l-20 31z" fill="{amber}" opacity=".85"/>'
+                f'<path d="M180 65a34 34 0 0 1 14 31h-34z" fill="{teal}" opacity=".85"/>'
+                f'<line x1="160" y1="96" x2="178" y2="74" stroke="{p["ink"]}" stroke-width="4" stroke-linecap="round"/>'
+                f'<circle cx="160" cy="96" r="5" fill="{p["ink"]}"/></svg>')
+
     # "data" -- generic analysis scene
     return (f'{o} aria-label="Charts and figures being analysed">'
             f'<rect x="16" y="20" width="168" height="90" rx="12" fill="{card}" stroke="{line}" stroke-width="2"/>'
@@ -713,17 +803,17 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
          you which of these it supports, and which it can't.</p>
     </div>
     <div class="nx-grid">
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['chart'])}</div><h4>Revenue &amp; profitability</h4>
+      <div class="nx-card"><div class="nx-art">{scene('revenue')}</div><h4>Revenue &amp; profitability</h4>
         <p>Spot when growth stops translating into margin.</p></div>
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['layers'])}</div><h4>Product performance</h4>
+      <div class="nx-card"><div class="nx-art">{scene('product')}</div><h4>Product performance</h4>
         <p>Which lines carry the business, and which drag on it.</p></div>
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['users'])}</div><h4>Customer value</h4>
+      <div class="nx-card"><div class="nx-art">{scene('customer')}</div><h4>Customer value</h4>
         <p>Which segments and accounts actually drive revenue.</p></div>
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['box'])}</div><h4>Inventory position</h4>
+      <div class="nx-card"><div class="nx-art">{scene('inventory')}</div><h4>Inventory position</h4>
         <p>Where stock runs out, and where it sits idle.</p></div>
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['truck'])}</div><h4>Delivery performance</h4>
+      <div class="nx-card"><div class="nx-art">{scene('delivery')}</div><h4>Delivery performance</h4>
         <p>Which partners are creating service risk.</p></div>
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['target'])}</div><h4>Targets &amp; marketing ROI</h4>
+      <div class="nx-card"><div class="nx-art">{scene('targets')}</div><h4>Targets &amp; marketing ROI</h4>
         <p>Where attainment slips and which spend pays back.</p></div>
     </div>
 

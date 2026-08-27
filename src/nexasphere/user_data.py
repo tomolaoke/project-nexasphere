@@ -195,6 +195,56 @@ def suggest_mapping(df: pd.DataFrame, profile: DatasetProfile) -> dict[str, Opti
     return mapping
 
 
+CONCEPT_HELP: dict[str, str] = {
+    "date": "When each record happened — drives all trend and growth analysis.",
+    "revenue": "Money earned per record (sales amount, invoice total, turnover).",
+    "cost": "What the goods/services cost you. Profit is derived if profit isn't mapped.",
+    "profit": "Profit per record, if you already calculate it.",
+    "quantity": "Units sold or items per record.",
+    "product": "What was sold — product, item or SKU name.",
+    "customer": "Who bought — customer name or ID.",
+    "store": "Which branch, outlet or store.",
+    "region": "Geography — region, city, state or territory.",
+    "category": "Product grouping or business segment.",
+    "campaign": "Marketing campaign, channel or source.",
+    "return_flag": "Whether the record was returned/refunded (yes-no style column).",
+    "employee": "Who made the sale — staff or salesperson.",
+}
+
+
+def candidate_columns(concept: str, profile: DatasetProfile) -> list[str]:
+    """Columns that could plausibly represent `concept`.
+
+    The mapping UI previously offered every column for every concept, so the
+    "Date" dropdown listed numeric revenue columns and "Revenue" listed text
+    names -- the user had to do the type-checking NexaSphere already did during
+    profiling. Filtering by detected type makes each dropdown answer its own
+    question, and prevents mappings that would fail on coercion anyway.
+    """
+    if concept == "date":
+        return [c.name for c in profile.columns if c.is_datelike]
+    if concept in _NUMERIC_CONCEPTS:
+        return [c.name for c in profile.columns if c.is_numeric]
+    if concept == "return_flag":
+        # A returned/refunded marker is binary (yes/no, true/false, 1/0), so
+        # cap at 3 distinct values to allow for a third "unknown"-style value.
+        # A looser cap lets short free-text columns through, and mapping one
+        # of those would silently produce a meaningless return rate.
+        return [c.name for c in profile.columns
+                if c.n_unique <= 3 and not c.is_datelike]
+    # Dimensions: anything that groups records. Dates are excluded (they're
+    # handled by the date concept) and so are near-unique float measures,
+    # which would produce one group per row.
+    out = []
+    for c in profile.columns:
+        if c.is_datelike:
+            continue
+        if c.is_numeric and c.dtype.startswith("float"):
+            continue
+        out.append(c.name)
+    return out
+
+
 def build_canonical_frame(df: pd.DataFrame, mapping: dict[str, Optional[str]]) -> pd.DataFrame:
     """Renames the user-confirmed mapped columns into canonical names and
     coerces types. Unmapped concepts are simply absent as columns -- callers
@@ -281,6 +331,19 @@ def missing_requirements(label: str, canonical_columns: set[str]) -> list[str]:
 # ---------------------------------------------------------------------------
 # Generic deterministic analytics (only called when required columns exist)
 # ---------------------------------------------------------------------------
+
+def dataset_window(cdf: pd.DataFrame) -> tuple | None:
+    """(start, end) of the user's own data, for display. Returns None when no
+    usable date column is mapped -- callers must say so rather than showing the
+    demo dataset's dates, which describe a different business entirely.
+    """
+    if "date" not in cdf.columns:
+        return None
+    dates = cdf["date"].dropna()
+    if dates.empty:
+        return None
+    return dates.min(), dates.max()
+
 
 def kpi_summary(cdf: pd.DataFrame) -> dict:
     if "revenue" not in cdf.columns:

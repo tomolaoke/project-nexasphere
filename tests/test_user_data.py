@@ -115,6 +115,66 @@ def test_build_canonical_frame_renames_and_coerces():
     assert "employee" not in cdf.columns  # never fabricated
 
 
+def test_candidate_columns_date_offers_only_datelike():
+    """The mapping UI used to offer every column for every concept, so the
+    Date dropdown listed numeric revenue columns. Each dropdown must now only
+    offer columns whose detected type suits that concept.
+    """
+    df = ud.load_uploaded_csv(_csv_file(RETAIL_CSV))
+    profile = ud.profile_dataset(df)
+    options = ud.candidate_columns("date", profile)
+    assert options == ["transaction_date"]
+    assert "sales_amount" not in options
+
+
+def test_candidate_columns_numeric_concepts_exclude_text():
+    df = ud.load_uploaded_csv(_csv_file(RETAIL_CSV))
+    profile = ud.profile_dataset(df)
+    for concept in ("revenue", "cost", "profit", "quantity"):
+        options = ud.candidate_columns(concept, profile)
+        assert "product_name" not in options, concept
+        assert "transaction_date" not in options, concept
+        assert "sales_amount" in options, concept
+
+
+def test_candidate_columns_dimensions_exclude_dates():
+    df = ud.load_uploaded_csv(_csv_file(RETAIL_CSV))
+    profile = ud.profile_dataset(df)
+    for concept in ("product", "customer", "region"):
+        options = ud.candidate_columns(concept, profile)
+        assert "transaction_date" not in options, concept
+        assert "product_name" in options, concept
+
+
+def test_candidate_columns_return_flag_prefers_low_cardinality():
+    csv = "id,returned,note\n1,yes,a\n2,no,b\n3,yes,c\n4,no,d\n"
+    df = ud.load_uploaded_csv(_csv_file(csv))
+    profile = ud.profile_dataset(df)
+    options = ud.candidate_columns("return_flag", profile)
+    assert "returned" in options
+    assert "note" not in options  # 4 distinct values but high relative cardinality
+
+
+def test_dataset_window_reports_user_data_range():
+    cdf = _canonical_retail_frame()
+    window = ud.dataset_window(cdf)
+    assert window is not None
+    start, end = window
+    assert str(start.date()) == "2026-01-01"
+    assert str(end.date()) == "2026-02-10"
+
+
+def test_dataset_window_none_without_date_column():
+    """Must return None rather than falling back to any other date source --
+    showing the demo dataset's window for a user's data would describe a
+    different business entirely.
+    """
+    df = ud.load_uploaded_csv(_csv_file(HR_CSV))
+    profile = ud.profile_dataset(df)
+    cdf = ud.build_canonical_frame(df, ud.suggest_mapping(df, profile))
+    assert ud.dataset_window(cdf) is None
+
+
 def test_capability_matrix_retail_dataset():
     df = ud.load_uploaded_csv(_csv_file(RETAIL_CSV))
     profile = ud.profile_dataset(df)

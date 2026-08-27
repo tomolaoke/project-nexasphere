@@ -95,18 +95,72 @@ def _llm_status_badge():
         )
 
 
+def business_name() -> str:
+    return st.session_state.get("ud_biz_name", "").strip() or "My Business"
+
+
+def is_business_workspace() -> bool:
+    return st.session_state.get("nx_workspace") == "business"
+
+
+def user_frame():
+    """(canonical_frame, capabilities) for the active business workspace, or
+    (None, None) if the user hasn't confirmed a mapping yet.
+    """
+    if not st.session_state.get("ud_confirmed") or "ud_raw_df" not in st.session_state:
+        return None, None
+    cdf = ud.build_canonical_frame(st.session_state["ud_raw_df"], st.session_state["ud_mapping"])
+    return cdf, ud.capability_matrix(set(cdf.columns))
+
+
 def render_sidebar():
-    st.sidebar.title("NexaSphere")
-    st.sidebar.caption("AI Business Intelligence Assistant · BuildFest 2026")
+    business = is_business_workspace()
+    st.sidebar.title(business_name() if business else "NexaSphere")
+    st.sidebar.caption(
+        f"{st.session_state.get('ud_biz_industry', '').strip() or 'Your business'} · "
+        "analyzed by NexaSphere" if business
+        else "AI Business Intelligence Assistant · BuildFest 2026"
+    )
     _llm_status_badge()
     st.sidebar.markdown("---")
-    start, end = an.dataset_date_range()
-    st.sidebar.markdown(f"**Dataset window**\n\n{start.date()} → {end.date()}")
+
+    if business:
+        cdf, _caps = user_frame()
+        # The dataset window must describe THEIR data. Showing the demo
+        # dataset's dates here would describe a different business entirely.
+        window = ud.dataset_window(cdf) if cdf is not None else None
+        if window:
+            st.sidebar.markdown(
+                f"**Your data window**\n\n{window[0].date()} → {window[1].date()}")
+        else:
+            st.sidebar.markdown(
+                "**Your data window**\n\nNo date column mapped — trend and growth "
+                "analysis is unavailable until one is.")
+        if cdf is not None:
+            st.sidebar.markdown(f"**Records analyzed**\n\n{len(cdf):,}")
+        st.sidebar.markdown(f"**Source file**\n\n{st.session_state.get('ud_filename', '—')}")
+        st.sidebar.markdown("---")
+        if st.sidebar.button("← Back to NexaSphere demo", use_container_width=True):
+            st.session_state["nx_workspace"] = "demo"
+            # Staged rather than assigned, for the same reason as the confirm
+            # handler: the nav radio owns this key. Safe here today only
+            # because the sidebar renders first, which is too fragile to rely on.
+            st.session_state["nx_pending_page"] = "Overview"
+            st.rerun()
+    else:
+        start, end = an.dataset_date_range()
+        st.sidebar.markdown(f"**Dataset window**\n\n{start.date()} → {end.date()}")
+        st.sidebar.caption("NexaSphere Retail Ltd. — the BuildFest demo dataset.")
+
     st.sidebar.markdown("---")
     st.sidebar.caption(
         "All KPIs are computed by a deterministic analytics engine. "
         "The AI layer only explains verified numbers -- it never invents them."
     )
+    if business:
+        st.sidebar.caption(
+            "🔒 Your data is analyzed in this session only and is not stored."
+        )
 
 
 @st.cache_data(show_spinner=False)
@@ -420,35 +474,47 @@ def render_analyze_my_business_tab():
     for note in quality["notes"]:
         st.caption(f"• {note}")
 
-    with st.expander("Business context (optional -- not required for analysis)"):
-        colA, colB = st.columns(2)
-        colA.text_input("Business name", key="ud_biz_name")
-        colA.text_input("Industry", key="ud_biz_industry")
-        colB.text_input("What does this dataset represent?", key="ud_biz_dataset")
-        colB.text_input("Primary business goal", key="ud_biz_goal")
-
     st.markdown("#### Confirm column mapping")
     st.caption(
-        "NexaSphere guessed these mappings from your column names and types. Correct any "
-        "that are wrong -- nothing is analyzed until you confirm below."
+        "NexaSphere guessed these mappings from your column names and types. Each dropdown "
+        "only offers columns of the right kind -- dates for Date, numbers for Revenue, and "
+        "so on. Correct anything that's wrong; nothing is analyzed until you confirm."
     )
 
-    column_options = ["(none)"] + list(df.columns)
     mapping = st.session_state["ud_mapping"]
     new_mapping = {}
     map_cols = st.columns(2)
     for i, concept in enumerate(ud.CANONICAL_FIELDS.keys()):
+        # Only offer columns whose detected type suits this concept, so each
+        # dropdown answers its own question instead of listing every column.
+        options = ["(none)"] + ud.candidate_columns(concept, profile)
         current = mapping.get(concept)
-        idx = column_options.index(current) if current in column_options else 0
+        idx = options.index(current) if current in options else 0
+        label = concept.replace("_", " ").capitalize()
         with map_cols[i % 2]:
-            choice = st.selectbox(
-                concept.replace("_", " ").capitalize(), column_options, index=idx, key=f"ud_map_{concept}"
-            )
+            if len(options) == 1:
+                st.selectbox(f"{label} — no suitable column found", options, index=0,
+                              key=f"ud_map_{concept}", disabled=True,
+                              help=ud.CONCEPT_HELP.get(concept))
+                choice = "(none)"
+            else:
+                choice = st.selectbox(label, options, index=idx, key=f"ud_map_{concept}",
+                                       help=ud.CONCEPT_HELP.get(concept))
         new_mapping[concept] = None if choice == "(none)" else choice
     st.session_state["ud_mapping"] = new_mapping
 
     if st.button("Confirm & Analyze", type="primary"):
         st.session_state["ud_confirmed"] = True
+        # Everything from here on is that business's own workspace: switch the
+        # whole app over so Overview / Findings / Ask / Dashboards all read
+        # from their data instead of the demo dataset.
+        st.session_state["nx_workspace"] = "business"
+        # Requested navigation is staged, not assigned directly: the nav radio
+        # owns the `nx_active_page` key and is instantiated earlier in the
+        # run, so writing to it here raises StreamlitAPIException. main()
+        # applies this before the widget is built.
+        st.session_state["nx_pending_page"] = "Overview"
+        st.rerun()
 
     if not st.session_state.get("ud_confirmed"):
         return
@@ -563,6 +629,237 @@ def render_analyze_my_business_tab():
             st.plotly_chart(theme.plotly_theme(fig), use_container_width=True)
 
 
+def render_business_setup() -> bool:
+    """Required business details, collected before upload so the workspace can
+    be titled and framed as theirs. Display-only: nothing here is persisted or
+    sent anywhere, which is stated plainly rather than left ambiguous.
+
+    Returns True once the required fields are filled.
+    """
+    if st.session_state.get("ud_setup_done"):
+        return True
+
+    theme.page_title(
+        "Tell us about your business",
+        "So your workspace is labelled with your name rather than a generic one.",
+    )
+    st.markdown(
+        theme.alert(
+            "info", "Display only",
+            "These details are used to label this session's workspace. They are not "
+            "saved, not sent anywhere, and disappear when you close the tab.",
+        ),
+        unsafe_allow_html=True,
+    )
+    st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
+
+    with st.form("nx_business_setup"):
+        c1, c2 = st.columns(2)
+        name = c1.text_input("Business name *", placeholder="e.g. Acme Retail Ltd.")
+        industry = c2.text_input("Industry *", placeholder="e.g. Retail, Logistics, Hospitality")
+        c3, c4 = st.columns(2)
+        represents = c3.text_input("What does your data represent?",
+                                    placeholder="e.g. Sales transactions")
+        goal = c4.text_input("Primary goal", placeholder="e.g. Improve profitability")
+        submitted = st.form_submit_button("Continue to upload", type="primary")
+
+    if submitted:
+        missing = [lbl for lbl, val in (("Business name", name), ("Industry", industry))
+                    if not val.strip()]
+        if missing:
+            st.error(f"Please fill in: {', '.join(missing)}.")
+            return False
+        st.session_state.update({
+            "ud_biz_name": name.strip(), "ud_biz_industry": industry.strip(),
+            "ud_biz_dataset": represents.strip(), "ud_biz_goal": goal.strip(),
+            "ud_setup_done": True,
+        })
+        st.rerun()
+    return False
+
+
+def _user_chart_grid(cdf, caps):
+    """Varied chart types chosen by what the dimension actually is -- a trend
+    over time reads as a line, share-of-total as a donut, rankings as bars.
+    Rendering everything as bars (the previous behaviour) hides those
+    differences and makes every question look like the same question.
+    """
+    figs = []
+    trend = ud.revenue_trend(cdf)
+    if not trend.empty:
+        y = [c for c in ("revenue", "profit") if c in trend.columns]
+        f = px.area(trend, x="period", y=y, title="Revenue over time",
+                     labels={"value": "", "period": "", "variable": ""})
+        f.update_traces(line=dict(width=2.5))
+        figs.append(("full", f))
+
+        if "profit" in trend.columns and len(trend) > 1:
+            m = trend.copy()
+            m["margin_pct"] = (m["profit"] / m["revenue"].replace(0, pd.NA) * 100).round(2)
+            f2 = px.line(m, x="period", y="margin_pct", markers=True,
+                          title="Margin % over time", labels={"margin_pct": "", "period": ""})
+            figs.append(("half", f2))
+
+    for dim, title in (("product", "Top products by revenue"),
+                        ("customer", "Top customers by revenue"),
+                        ("employee", "Revenue by employee")):
+        if dim in cdf.columns:
+            d = ud.breakdown_by(cdf, dim, top_n=10)
+            if not d.empty:
+                f = px.bar(d, x="revenue", y=dim, orientation="h", title=title,
+                            labels={"revenue": "", dim: ""})
+                f.update_layout(yaxis=dict(autorange="reversed"))
+                figs.append(("half", f))
+
+    for dim, title in (("category", "Revenue share by category"),
+                        ("region", "Revenue share by region"),
+                        ("store", "Revenue share by store")):
+        if dim in cdf.columns:
+            d = ud.breakdown_by(cdf, dim, top_n=8)
+            if not d.empty:
+                f = px.pie(d, names=dim, values="revenue", title=title, hole=.55)
+                f.update_traces(textposition="inside", textinfo="percent")
+                figs.append(("half", f))
+
+    if "campaign" in cdf.columns:
+        d = ud.breakdown_by(cdf, "campaign", top_n=10)
+        if not d.empty:
+            f = px.bar(d, x="campaign", y="revenue", title="Revenue by campaign",
+                        labels={"revenue": "", "campaign": ""})
+            figs.append(("half", f))
+
+    # Margin vs revenue scatter: shows high-revenue/low-margin lines, which a
+    # ranked bar chart cannot reveal.
+    if "profit" in cdf.columns and "product" in cdf.columns:
+        d = ud.breakdown_by(cdf, "product", top_n=40)
+        if not d.empty and "margin_pct" in d.columns:
+            f = px.scatter(d, x="revenue", y="margin_pct", size="revenue",
+                            hover_name="product", title="Revenue vs. margin by product",
+                            labels={"revenue": "Revenue", "margin_pct": "Margin %"})
+            figs.append(("half", f))
+
+    if not figs:
+        st.info("No chartable dimensions were detected in your mapping.")
+        return
+
+    pending = []
+    for width, fig in figs:
+        if width == "full":
+            st.plotly_chart(theme.plotly_theme(fig, 320), use_container_width=True)
+        else:
+            pending.append(fig)
+            if len(pending) == 2:
+                for col, f in zip(st.columns(2), pending):
+                    col.plotly_chart(theme.plotly_theme(f, 300), use_container_width=True)
+                pending = []
+    if pending:
+        st.plotly_chart(theme.plotly_theme(pending[0], 300), use_container_width=True)
+
+
+def render_user_overview(cdf, caps):
+    kpi = ud.kpi_summary(cdf)
+    cards = [theme.kpi_card("Total revenue", f"{kpi.get('revenue', 0):,.2f}",
+                             note=st.session_state.get("ud_biz_dataset") or "From your data",
+                             icon="cash")]
+    if "profit" in kpi:
+        cards.append(theme.kpi_card("Total profit", f"{kpi['profit']:,.2f}", icon="chart",
+                                     note="Revenue less cost"))
+        cards.append(theme.kpi_card("Margin", f"{kpi.get('margin_pct', 0):.2f}%", icon="percent",
+                                     note="Profit as % of revenue"))
+    cards.append(theme.kpi_card("Records", f"{kpi.get('records', 0):,}", icon="orders",
+                                note="Rows analyzed"))
+    for col, card in zip(st.columns(len(cards)), cards):
+        col.markdown(card, unsafe_allow_html=True)
+
+    st.markdown("<div style='height:1.4rem'></div>", unsafe_allow_html=True)
+    _user_chart_grid(cdf, caps)
+
+    findings = ud.generate_user_findings(cdf, caps)
+    if findings:
+        st.markdown("#### What needs your attention")
+        for col, f in zip(st.columns(min(3, len(findings))), findings[:3]):
+            color, bg = theme.severity_colors(f.severity)
+            with col:
+                st.markdown(
+                    f'<div class="nx-card" style="border-left:4px solid {color};">'
+                    f'<span class="nx-badge" style="background:{bg};color:{color};">'
+                    f'{f.severity.upper()}</span><h4 style="margin-top:.6rem;">{f.title}</h4>'
+                    f'<p>{f.summary[:150]}…</p></div>', unsafe_allow_html=True)
+
+
+def render_user_findings(cdf, caps):
+    findings = ud.generate_user_findings(cdf, caps)
+    if not findings:
+        st.info(
+            "No findings yet. Findings need at least a revenue column, and trend-based "
+            "findings also need a date column — check your column mapping."
+        )
+        return
+    for f in findings:
+        with st.container(border=True):
+            st.markdown(theme.finding_header(f.title, f.severity, f.category, f.confidence),
+                         unsafe_allow_html=True)
+            text, source, backend, model, _v = _cached_narrate_generic(
+                f.summary, json.dumps(f.evidence, default=str), f.recommendation)
+            st.write(text)
+            if source == "template":
+                st.info("Verified analysis — AI explanation unavailable or unverifiable right "
+                        "now; the summary above comes straight from your data, not a model.")
+            else:
+                label = "local Ollama" if backend == "ollama" else "free hosted Groq"
+                st.caption(f"Narration source: AI ({label} · {model}), numerically verified")
+            st.markdown(f"**Recommended focus:** {f.recommendation}")
+            with st.expander("Evidence (raw computed values)"):
+                st.json(f.evidence)
+
+
+def render_user_ask(cdf, caps):
+    st.caption(
+        "Ask in plain language — formal or casual, including Nigerian English/Pidgin. "
+        "Not sure what's possible? Ask *\"What can I ask?\"* and NexaSphere answers from "
+        "the columns it detected in your files."
+    )
+    suggestions = [ex for label, ok in caps.items() if ok
+                    for ex in ud._CAPABILITY_QUESTIONS.get(label, [])][:6]
+    if suggestions:
+        with st.expander("Suggested questions for your data"):
+            for s in suggestions:
+                st.markdown(f"- {s}")
+
+    question = st.text_input("Your question", key="ud_question",
+                              placeholder="e.g. Which product generates the most revenue?")
+    if st.button("Ask", key="ud_ask_btn", type="primary") and question.strip():
+        result = ud.answer_user_question(question, cdf, caps)
+        if result.supported:
+            narration = nlg.narrate_answer(question, result.result, result.template_answer)
+            st.markdown(f"**Answer:** {narration.text}")
+            if narration.source != "template":
+                label = "local Ollama" if narration.backend == "ollama" else "free hosted Groq"
+                st.caption(f"Narration source: AI ({label} · {narration.model}), numerically verified")
+            if result.result:
+                with st.expander("Underlying computed result"):
+                    st.json(result.result)
+        else:
+            st.warning(result.template_answer)
+
+
+def render_user_capabilities(cdf, caps):
+    supported = [l for l, ok in caps.items() if ok]
+    unsupported = [l for l, ok in caps.items() if not ok]
+    st.markdown(f"Your data supports **{len(supported)} of {len(caps)}** analysis categories.")
+    a, b = st.columns(2)
+    with a:
+        st.markdown("**Detected**")
+        for label in supported:
+            st.markdown(f"✓ {label}")
+    with b:
+        st.markdown("**Not detected**")
+        for label in unsupported:
+            needed = ud.missing_requirements(label, set(cdf.columns))
+            extra = f" — needs {', '.join(needed)}" if needed else ""
+            st.markdown(f"○ {label}{extra}")
+
+
 def main():
     theme.inject_css()
     theme.apply_chart_defaults()
@@ -575,52 +872,104 @@ def main():
             st.rerun()
         return
 
-    # Landing CTA "Analyze My Business" deep-links straight into that page
-    # rather than dropping the user on Overview with a hint to go find it.
+    # "Analyze My Business" from the landing page opens the business workspace
+    # onboarding rather than dropping the user on the demo's Overview.
     if st.session_state.pop("nx_jump_to_upload", False):
-        st.session_state["nx_active_page"] = "Analyze My Business"
+        st.session_state["nx_workspace"] = "business"
+        st.session_state["nx_pending_page"] = "Analyze My Business"
+
+    # Apply any staged navigation BEFORE the nav radio is instantiated -- once
+    # the widget owns its key, assigning to it raises StreamlitAPIException.
+    pending = st.session_state.pop("nx_pending_page", None)
+    if pending:
+        st.session_state["nx_active_page"] = pending
+
+    business = is_business_workspace()
+
+    # A business workspace starts with required details, so every page after
+    # it can be titled with their name instead of a generic placeholder.
+    if business and not st.session_state.get("ud_setup_done"):
+        theme.inject_css()
+        if st.button("← Back to landing"):
+            st.session_state["nx_workspace"] = "demo"
+            st.session_state["nx_entered_app"] = False
+            st.rerun()
+        render_business_setup()
+        return
 
     render_sidebar()
 
     # Navigation sits ABOVE the content it controls, so what you can do is
     # visible before what you're looking at.
-    page, go_home = theme.app_shell("NexaSphere Demo")
+    page, go_home = theme.app_shell(business_name() if business else "NexaSphere Demo")
     if go_home:
         st.session_state["nx_entered_app"] = False
         st.rerun()
 
-    if page == "Overview":
-        theme.page_title(
-            "Business overview",
-            "Every figure below is computed by the analytics engine and traceable to its evidence.",
-        )
-        render_kpi_row()
-        st.markdown("<div style='height:1.6rem'></div>", unsafe_allow_html=True)
-        render_overview_highlights()
-    elif page == "Findings":
-        theme.page_title(
-            "Findings",
-            "What needs management attention right now, ranked by severity.",
-        )
-        render_findings_tab()
-    elif page == "Ask NexaSphere":
-        theme.page_title(
-            "Ask NexaSphere",
-            "Ask in plain language. Answers are calculated first, then explained.",
-        )
-        render_ask_tab()
-    elif page == "Dashboards":
-        theme.page_title(
-            "Dashboards",
-            "Visual breakdowns across products, regions, partners, campaigns and people.",
-        )
-        render_dashboard_tab()
-    else:
-        theme.page_title(
-            "Analyze My Business",
-            "Upload your own business files and run the same evidence-backed pipeline on them.",
-        )
+    if not business:
+        if page == "Overview":
+            theme.page_title(
+                "Business overview",
+                "Every figure below is computed by the analytics engine and traceable to its evidence.",
+            )
+            render_kpi_row()
+            st.markdown("<div style='height:1.6rem'></div>", unsafe_allow_html=True)
+            render_overview_highlights()
+        elif page == "Findings":
+            theme.page_title("Findings",
+                              "What needs management attention right now, ranked by severity.")
+            render_findings_tab()
+        elif page == "Ask NexaSphere":
+            theme.page_title("Ask NexaSphere",
+                              "Ask in plain language. Answers are calculated first, then explained.")
+            render_ask_tab()
+        elif page == "Dashboards":
+            theme.page_title("Dashboards",
+                              "Visual breakdowns across products, regions, partners, campaigns and people.")
+            render_dashboard_tab()
+        else:
+            theme.page_title("Analyze My Business",
+                              "Upload your own business files and run the same evidence-backed "
+                              "pipeline on them.")
+            render_analyze_my_business_tab()
+        return
+
+    # ---- Business workspace: every page reads from their uploaded data ----
+    name = business_name()
+    cdf, caps = user_frame()
+
+    if page == "Analyze My Business" or cdf is None:
+        if cdf is None and page != "Analyze My Business":
+            st.markdown(
+                theme.alert("info", "No data analyzed yet",
+                             "Upload your files and confirm the column mapping below to unlock "
+                             f"{page} for {name}."),
+                unsafe_allow_html=True)
+        theme.page_title(f"{name} · Data",
+                          "Upload your business files, confirm what each column means, and analyze.")
         render_analyze_my_business_tab()
+        return
+
+    if page == "Overview":
+        theme.page_title(f"{name} · Overview",
+                          f"Computed from your uploaded data. "
+                          f"{st.session_state.get('ud_biz_goal') or 'Every figure is traceable to its evidence.'}")
+        render_user_overview(cdf, caps)
+    elif page == "Findings":
+        theme.page_title(f"{name} · Findings",
+                          "What stands out in your data, with the evidence behind each one.")
+        render_user_findings(cdf, caps)
+    elif page == "Ask NexaSphere":
+        theme.page_title(f"Ask about {name}",
+                          "Answers are calculated from your data first, then explained.")
+        render_user_ask(cdf, caps)
+    elif page == "Dashboards":
+        theme.page_title(f"{name} · Dashboards",
+                          "Charts chosen to suit the columns detected in your data.")
+        _user_chart_grid(cdf, caps)
+        st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
+        st.markdown("#### What your data can answer")
+        render_user_capabilities(cdf, caps)
 
 
 if __name__ == "__main__":
