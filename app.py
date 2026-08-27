@@ -109,22 +109,57 @@ def render_sidebar():
     )
 
 
+@st.cache_data(show_spinner=False)
+def _landing_kpi_preview():
+    """Real computed figures for the landing hero strip. Using actual analytics
+    output (rather than invented marketing numbers) is the point: the landing
+    page shows the product's real output.
+    """
+    comp = an.revenue_profit_growth_gap(30)
+    latest, change = comp["latest_period"], comp["change"]
+    return {
+        "revenue": f"{latest['revenue']:,.0f}",
+        "revenue_pct": change["revenue_pct"],
+        "profit": f"{latest['gross_profit']:,.0f}",
+        "profit_pct": change["gross_profit_pct"],
+        "margin": f"{latest['margin_pct']:.2f}%",
+        "margin_pp": f"{abs(change['margin_pp']):.2f}",
+        "orders": f"{latest['orders']:,}",
+    }
+
+
 def render_kpi_row():
     comp = an.revenue_profit_growth_gap(30)
     latest = comp["latest_period"]
     change = comp["change"]
 
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Revenue (last 30d)", f"{latest['revenue']:,.0f}", f"{change['revenue_pct']:+.1f}%")
-    c2.metric("Gross Profit (last 30d)", f"{latest['gross_profit']:,.0f}", f"{change['gross_profit_pct']:+.1f}%")
-    c3.metric("Gross Margin", f"{latest['margin_pct']:.2f}%", f"{change['margin_pp']:+.2f} pp")
-    c4.metric("Orders (last 30d)", f"{latest['orders']:,}", f"{change['orders_pct']:+.1f}%")
+    cards = [
+        theme.kpi_card("Revenue", f"{latest['revenue']:,.0f}",
+                        f"{abs(change['revenue_pct']):.1f}%", change["revenue_pct"] >= 0, "Last 30 days"),
+        theme.kpi_card("Gross profit", f"{latest['gross_profit']:,.0f}",
+                        f"{abs(change['gross_profit_pct']):.1f}%", change["gross_profit_pct"] >= 0, "Last 30 days"),
+        theme.kpi_card("Gross margin", f"{latest['margin_pct']:.2f}%",
+                        f"{abs(change['margin_pp']):.2f} pp", change["margin_pp"] >= 0, "vs. prior period"),
+        theme.kpi_card("Orders", f"{latest['orders']:,}",
+                        f"{abs(change['orders_pct']):.1f}%", change["orders_pct"] >= 0, "Last 30 days"),
+    ]
+    for col, card in zip(st.columns(4), cards):
+        col.markdown(card, unsafe_allow_html=True)
 
     if comp["margin_pressure"]:
-        st.warning(
-            f"⚠️ Revenue is growing ({change['revenue_pct']:+.1f}%) faster than gross profit "
-            f"({change['gross_profit_pct']:+.1f}%) -- margin moved {change['margin_pp']:+.2f} pp. "
-            "See the Findings tab for the evidence trail."
+        st.markdown(
+            f"""
+            <div style="background:#FDF3E3;border:1px solid #F3DFB4;border-left:4px solid #E8A33D;
+                        border-radius:14px;padding:1rem 1.2rem;margin-top:1rem;">
+              <b style="color:#14142B;font-size:.94rem;">Margin under pressure</b>
+              <div style="color:#6E6D8A;font-size:.88rem;margin-top:.25rem;line-height:1.55;">
+                Revenue grew {change['revenue_pct']:+.1f}% while gross profit grew only
+                {change['gross_profit_pct']:+.1f}% &mdash; margin moved {change['margin_pp']:+.2f} pp.
+                See <b>Findings</b> for the evidence trail.
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
 
@@ -138,12 +173,11 @@ def render_findings_tab():
     )
     findings = _cached_findings(30)
     for f in findings:
-        icon = SEVERITY_ICON.get(f["severity"], "⚪")
         confidence = f.get("confidence", "medium")
         with st.container(border=True):
             st.markdown(
-                f"### {icon} {f['title']}  \n"
-                f"`{f['severity'].upper()}` · {f['category']} · confidence: `{confidence.upper()}`"
+                theme.finding_header(f["title"], f["severity"], f["category"], confidence),
+                unsafe_allow_html=True,
             )
             text, source, backend, model, _verified = _cached_narrate_finding(f)
             st.write(text)
@@ -194,42 +228,42 @@ def render_dashboard_tab():
     fig = px.line(trend, x="month", y=["revenue", "gross_profit"], markers=True,
                    labels={"value": "Amount", "month": "Month", "variable": "Metric"},
                    title="Monthly Revenue vs. Gross Profit")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(theme.plotly_theme(fig), use_container_width=True)
 
     col1, col2 = st.columns(2)
     with col1:
         cat = an.breakdown_by("category")
         fig2 = px.bar(cat, x="category", y="revenue", color="margin_pct",
                        title="Revenue & Margin by Category", color_continuous_scale="RdYlGn")
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(theme.plotly_theme(fig2), use_container_width=True)
     with col2:
         region = an.breakdown_by("region")
         fig3 = px.pie(region, names="region", values="revenue", title="Revenue Share by Region")
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(theme.plotly_theme(fig3), use_container_width=True)
 
     col3, col4 = st.columns(2)
     with col3:
         returns = an.return_analysis()
         fig4 = px.bar(returns, x="category", y="return_rate_pct", title="Return Rate % by Category")
-        st.plotly_chart(fig4, use_container_width=True)
+        st.plotly_chart(theme.plotly_theme(fig4), use_container_width=True)
     with col4:
         delivery = an.delivery_partner_performance()
         fig5 = px.bar(delivery, x="partner_name", y="delayed_rate_pct", title="Delayed Delivery Rate % by Partner")
-        st.plotly_chart(fig5, use_container_width=True)
+        st.plotly_chart(theme.plotly_theme(fig5), use_container_width=True)
 
     col5, col6 = st.columns(2)
     with col5:
         emp = an.employee_store_performance()
         fig6 = px.bar(emp, x="store_name", y="revenue_per_employee", color="margin_pct",
                        title="Revenue per Employee by Store", color_continuous_scale="RdYlGn")
-        st.plotly_chart(fig6, use_container_width=True)
+        st.plotly_chart(theme.plotly_theme(fig6), use_container_width=True)
         st.caption("Sales are recorded per store, not per individual employee -- this reflects "
                    "store-level team performance, not individual attribution.")
     with col6:
         seg = an.customer_segment_value()
         fig7 = px.bar(seg, x="customer_segment", y="revenue_per_customer", color="margin_pct",
                        title="Revenue per Customer by Segment", color_continuous_scale="RdYlGn")
-        st.plotly_chart(fig7, use_container_width=True)
+        st.plotly_chart(theme.plotly_theme(fig7), use_container_width=True)
 
     st.markdown("#### Marketing Campaign ROI")
     st.dataframe(an.campaign_roi()[["campaign_name", "channel", "spend", "attributed_revenue", "roi"]], use_container_width=True)
@@ -487,19 +521,19 @@ def render_analyze_my_business_tab():
     if not trend.empty:
         y_cols = [c for c in ("revenue", "profit") if c in trend.columns]
         fig = px.line(trend, x="period", y=y_cols, markers=True, title="Revenue Over Time")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(theme.plotly_theme(fig), use_container_width=True)
     for dim in dimension_charts:
         bdf = ud.breakdown_by(cdf, dim, top_n=10)
         if not bdf.empty:
             fig = px.bar(bdf, x=dim, y="revenue", title=f"Revenue by {dim.capitalize()}")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(theme.plotly_theme(fig), use_container_width=True)
 
 
 def main():
     theme.inject_css()
 
     if not st.session_state.get("nx_entered_app"):
-        destination = theme.render_landing()
+        destination = theme.render_landing(_landing_kpi_preview())
         if destination is not None:
             st.session_state["nx_entered_app"] = True
             st.session_state["nx_jump_to_upload"] = destination == "upload"
@@ -511,10 +545,10 @@ def main():
         st.session_state["nx_entered_app"] = False
         st.rerun()
 
-    st.title("NexaSphere AI Business Intelligence Assistant")
-    st.caption(
-        "Turning disconnected retail data into prioritized management insights -- "
-        "with every number traceable to a deterministic calculation."
+    theme.app_header(
+        "Business overview",
+        "Every figure below is computed by the analytics engine and traceable to its evidence.",
+        "NexaSphere Demo",
     )
     render_kpi_row()
 

@@ -2,8 +2,13 @@
 headless = true
 port = 8501
 
+# Light, lavender-tinted product theme (see src/nexasphere/theme.py for the
+# full design system). Streamlit's own widgets pick these up; everything else
+# is styled by the injected CSS.
 [theme]
-primaryColor = "#3d7dd6"
-backgroundColor = "#0e1117"
-secondaryBackgroundColor = "#161b22"
-textColor = "#e6e6e6"
+base = "light"
+primaryColor = "#5B4FE9"
+backgroundColor = "#F5F4FC"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#14142B"
+font = "sans serif"
