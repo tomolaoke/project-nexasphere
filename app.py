@@ -170,6 +170,22 @@ def render_overview_highlights():
     """Top findings surfaced on Overview so the most important signals are
     visible without navigating away.
     """
+    # Hero chart: the competition's core story (is growth reaching profit?)
+    # belongs on the first screen, not buried a page away.
+    trend = an.monthly_revenue_trend()
+    left, right = st.columns([1.55, 1])
+    with left:
+        fig = px.area(trend, x="month", y=["revenue", "gross_profit"],
+                       title="Revenue vs. Gross Profit", labels={"value": "", "month": ""})
+        fig.update_traces(line=dict(width=2.5))
+        st.plotly_chart(theme.plotly_theme(fig, 300), use_container_width=True)
+    with right:
+        cat = an.breakdown_by("category", top_n=6)
+        fig2 = px.bar(cat, x="revenue", y="category", orientation="h",
+                       title="Revenue by Category", labels={"revenue": "", "category": ""})
+        fig2.update_layout(yaxis=dict(autorange="reversed"))
+        st.plotly_chart(theme.plotly_theme(fig2, 300), use_container_width=True)
+
     st.markdown("#### What needs your attention")
     findings = _cached_findings(30)[:3]
     for col, f in zip(st.columns(len(findings)), findings):
@@ -253,7 +269,7 @@ def render_dashboard_tab():
     with col1:
         cat = an.breakdown_by("category")
         fig2 = px.bar(cat, x="category", y="revenue", color="margin_pct",
-                       title="Revenue & Margin by Category", color_continuous_scale="RdYlGn")
+                       title="Revenue & Margin by Category")
         st.plotly_chart(theme.plotly_theme(fig2), use_container_width=True)
     with col2:
         region = an.breakdown_by("region")
@@ -274,14 +290,14 @@ def render_dashboard_tab():
     with col5:
         emp = an.employee_store_performance()
         fig6 = px.bar(emp, x="store_name", y="revenue_per_employee", color="margin_pct",
-                       title="Revenue per Employee by Store", color_continuous_scale="RdYlGn")
+                       title="Revenue per Employee by Store")
         st.plotly_chart(theme.plotly_theme(fig6), use_container_width=True)
         st.caption("Sales are recorded per store, not per individual employee -- this reflects "
                    "store-level team performance, not individual attribution.")
     with col6:
         seg = an.customer_segment_value()
         fig7 = px.bar(seg, x="customer_segment", y="revenue_per_customer", color="margin_pct",
-                       title="Revenue per Customer by Segment", color_continuous_scale="RdYlGn")
+                       title="Revenue per Customer by Segment")
         st.plotly_chart(theme.plotly_theme(fig7), use_container_width=True)
 
     st.markdown("#### Marketing Campaign ROI")
@@ -549,6 +565,7 @@ def render_analyze_my_business_tab():
 
 def main():
     theme.inject_css()
+    theme.apply_chart_defaults()
 
     if not st.session_state.get("nx_entered_app"):
         destination = theme.render_landing(_landing_kpi_preview())

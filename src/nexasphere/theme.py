@@ -112,9 +112,22 @@ html, body, [class*="css"], .stMarkdown, button, input, textarea, select {
   font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif !important;
 }
 
-/* Streamlit's own dev toolbar (Deploy / Stop / menu) -- hidden so it never
-   appears in demo recordings or for end users. */
-[data-testid="stToolbar"], #MainMenu, footer, [data-testid="stDecoration"] { display:none !important; }
+/* Streamlit's header is a 60px OPAQUE bar at z-index 999990. Left as-is it
+   paints over the first 60px of the page -- which was covering our navbar and
+   pill tabs. Make it transparent and click-through, restore pointer events on
+   its actual controls, and pad the content below it.
+   The running/connecting status indicator is deliberately KEPT: it is real
+   feedback about whether the app is busy or has lost its connection, and
+   hiding it makes the app feel frozen during a slow AI call. Only the Deploy
+   button (irrelevant to end users) is removed. */
+[data-testid="stHeader"] {
+  background:transparent !important; pointer-events:none; height:0 !important;
+}
+[data-testid="stHeader"] > * { pointer-events:auto; }
+[data-testid="stAppDeployButton"] { display:none !important; }
+[data-testid="stStatusWidget"] { pointer-events:auto; }
+[data-testid="stDecoration"], footer { display:none !important; }
+.block-container { padding-top:3.4rem !important; }
 
 .stApp {
   background:
@@ -122,7 +135,7 @@ html, body, [class*="css"], .stMarkdown, button, input, textarea, select {
     radial-gradient(760px 420px at 8% 4%, __glow2__ 0%, transparent 58%),
     var(--nx-canvas);
 }
-.block-container { padding-top:1.4rem !important; padding-bottom:3rem !important; max-width:1200px; }
+.block-container { padding-bottom:3rem !important; max-width:1200px; }
 h1,h2,h3,h4,h5 { color:var(--nx-ink) !important; letter-spacing:-.025em; }
 p, span, li, label, .stMarkdown { color:var(--nx-ink); }
 hr { border-color:var(--nx-border); }
@@ -200,9 +213,39 @@ code { background:var(--nx-accent-soft) !important; color:var(--nx-accent) !impo
   .st-key-nx_active_page [data-testid="stRadioOption"] { flex:1 1 44%; }
 }
 
-/* Icon-only square buttons (home, theme toggle) */
+/* Icon-only circular controls (home, theme toggle) -- these are utilities, not
+   primary actions, so they read as small round icon buttons rather than
+   full-width labelled buttons competing with the navigation. */
 .st-key-nx_home button, .st-key-nx_theme button {
-  border-radius:12px !important; padding:.55rem .7rem !important; font-size:1rem !important;
+  width:40px !important; height:40px !important; min-height:40px !important;
+  border-radius:50% !important; padding:0 !important; font-size:1.05rem !important;
+  display:flex !important; align-items:center; justify-content:center;
+  line-height:1 !important;
+}
+.st-key-nx_home button p, .st-key-nx_theme button p { font-size:1.05rem !important; margin:0 !important; }
+.st-key-nx_theme button:hover { transform:rotate(-18deg) scale(1.06); }
+
+/* ---------- Motion ----------
+   Entrance transitions only, kept short and non-looping: they orient the eye
+   as content arrives without turning the dashboard into a distraction. All of
+   it is disabled for users who ask for reduced motion. */
+@keyframes nxUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:none;} }
+@keyframes nxIn { from{opacity:0;} to{opacity:1;} }
+@keyframes nxDraw { from{stroke-dashoffset:var(--len);} to{stroke-dashoffset:0;} }
+.nx-kpi, .nx-card, .nx-stat, .nx-fstep { animation:nxUp .5s cubic-bezier(.22,.9,.3,1) both; }
+.nx-statrow > :nth-child(2), .nx-grid > :nth-child(2), .nx-flow > :nth-child(2) { animation-delay:.06s; }
+.nx-statrow > :nth-child(3), .nx-grid > :nth-child(3), .nx-flow > :nth-child(3) { animation-delay:.12s; }
+.nx-statrow > :nth-child(4), .nx-grid > :nth-child(4), .nx-flow > :nth-child(4) { animation-delay:.18s; }
+.nx-grid > :nth-child(5), .nx-flow > :nth-child(5) { animation-delay:.24s; }
+.nx-grid > :nth-child(6), .nx-flow > :nth-child(6) { animation-delay:.30s; }
+[data-testid="stPlotlyChart"], [data-testid="stVerticalBlockBorderWrapper"] { animation:nxIn .55s ease both; }
+.nx-spark polyline { stroke-dasharray:var(--len,600); animation:nxDraw 1.1s ease-out both; }
+.nx-hero svg g { animation:nxUp .7s cubic-bezier(.22,.9,.3,1) both; }
+.nx-hero svg g:nth-of-type(2){animation-delay:.08s;} .nx-hero svg g:nth-of-type(3){animation-delay:.16s;}
+.nx-hero svg g:nth-of-type(4){animation-delay:.24s;} .nx-hero svg g:nth-of-type(5){animation-delay:.32s;}
+.nx-hero svg g:nth-of-type(6){animation-delay:.40s;}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation:none !important; transition:none !important; }
 }
 
 /* ---------- Landing ---------- */
@@ -253,6 +296,9 @@ code { background:var(--nx-accent-soft) !important; color:var(--nx-accent) !impo
 .nx-card:hover { transform:translateY(-3px); box-shadow:0 14px 32px var(--nx-shadow); border-color:var(--nx-accent); }
 .nx-ico { width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
   margin-bottom:.9rem;background:var(--nx-accent-soft); }
+.nx-art { background:var(--nx-accent-soft); border-radius:14px; padding:.5rem;
+  margin-bottom:.95rem; overflow:hidden; }
+.nx-art svg { display:block; }
 .nx-card h4 { font-size:1rem; font-weight:700; margin:0 0 .35rem; }
 .nx-card p { font-size:.88rem; color:var(--nx-muted) !important; line-height:1.56; margin:0; }
 
@@ -413,6 +459,118 @@ def _hero_svg() -> str:
 """
 
 
+def scene(name: str) -> str:
+    """Illustrated card art.
+
+    Monoline icons are what make a product look generated -- every card gets
+    the same weight, the same abstraction, no personality. These are small
+    drawn scenes instead: depth, multiple objects, warm/cool contrast, a
+    subject doing something. Still pure SVG (free, scalable, themes with the
+    palette, no binary assets and nothing copied from the references).
+    """
+    p = palette()
+    a, a2 = p["accent"], p["accent2"]
+    teal, amber, rose = "#3FBFB3", "#F0B457", "#F2789F"
+    card = p["surface"] if current_mode() == "light" else p["raised"]
+    line = p["border"]
+    skin, skin2 = "#F2C9A0", "#C98B62"
+    o = f'<svg viewBox="0 0 200 130" width="100%" height="118" xmlns="http://www.w3.org/2000/svg" role="img"'
+
+    if name == "see":
+        return (f'{o} aria-label="A person studying a dashboard through a magnifying glass">'
+                f'<rect x="18" y="16" width="128" height="82" rx="10" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<rect x="18" y="16" width="128" height="16" rx="10" fill="{a}" opacity=".16"/>'
+                f'<circle cx="28" cy="24" r="3" fill="{rose}"/><circle cx="37" cy="24" r="3" fill="{amber}"/>'
+                f'<circle cx="46" cy="24" r="3" fill="{teal}"/>'
+                f'<rect x="30" y="66" width="14" height="22" rx="4" fill="{a2}"/>'
+                f'<rect x="50" y="52" width="14" height="36" rx="4" fill="{a}"/>'
+                f'<rect x="70" y="60" width="14" height="28" rx="4" fill="{teal}"/>'
+                f'<rect x="90" y="44" width="14" height="44" rx="4" fill="{a2}"/>'
+                f'<polyline points="34,60 57,46 77,54 97,38 120,44" fill="none" stroke="{amber}"'
+                f' stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<circle cx="140" cy="82" r="26" fill="#fff" fill-opacity=".22" stroke="{a}" stroke-width="5"/>'
+                f'<line x1="158" y1="100" x2="176" y2="118" stroke="{a}" stroke-width="7" stroke-linecap="round"/>'
+                f'</svg>')
+
+    if name == "explain":
+        return (f'{o} aria-label="An assistant explaining a chart in a speech bubble">'
+                f'<path d="M14 22h104a10 10 0 0 1 10 10v40a10 10 0 0 1-10 10H52l-18 16V82H14A10 10 0 0 1 4 72V32a10 10 0 0 1 10-10z"'
+                f' transform="translate(8,0)" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<rect x="34" y="40" width="62" height="7" rx="3.5" fill="{a}" opacity=".85"/>'
+                f'<rect x="34" y="54" width="84" height="7" rx="3.5" fill="{line}"/>'
+                f'<rect x="34" y="68" width="46" height="7" rx="3.5" fill="{line}"/>'
+                f'<circle cx="160" cy="46" r="17" fill="{a}" opacity=".18"/>'
+                f'<circle cx="160" cy="41" r="10" fill="{skin}"/>'
+                f'<path d="M160 31a10 10 0 0 1 10 10h-20a10 10 0 0 1 10-10z" fill="{skin2}"/>'
+                f'<path d="M144 68c2-10 8-15 16-15s14 5 16 15z" fill="{a2}"/>'
+                f'<circle cx="156" cy="41" r="1.6" fill="#3A2A1E"/><circle cx="165" cy="41" r="1.6" fill="#3A2A1E"/>'
+                f'<path d="M156 46q4 3 8 0" stroke="#3A2A1E" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+                f'</svg>')
+
+    if name == "act":
+        return (f'{o} aria-label="A checklist with a completed action and an upward result">'
+                f'<rect x="20" y="14" width="94" height="100" rx="10" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<rect x="52" y="8" width="30" height="12" rx="6" fill="{a}"/>'
+                f'<circle cx="36" cy="42" r="8" fill="{teal}"/>'
+                f'<path d="M32 42l3 3 6-6" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<rect x="50" y="38" width="52" height="7" rx="3.5" fill="{line}"/>'
+                f'<circle cx="36" cy="66" r="8" fill="{teal}"/>'
+                f'<path d="M32 66l3 3 6-6" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<rect x="50" y="62" width="40" height="7" rx="3.5" fill="{line}"/>'
+                f'<circle cx="36" cy="90" r="8" fill="none" stroke="{a}" stroke-width="2.6"/>'
+                f'<rect x="50" y="86" width="46" height="7" rx="3.5" fill="{line}"/>'
+                f'<path d="M132 96 L150 62 L166 74 L182 34" fill="none" stroke="{a}" stroke-width="5"'
+                f' stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<path d="M170 34h13v13" fill="none" stroke="{a}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<circle cx="150" cy="62" r="4.5" fill="{amber}"/><circle cx="166" cy="74" r="4.5" fill="{teal}"/>'
+                f'</svg>')
+
+    if name == "trust":
+        return (f'{o} aria-label="A shield guarding a verified figure">'
+                f'<path d="M100 12l40 15v33c0 27-17 45-40 58-23-13-40-31-40-58V27z" fill="{a}" opacity=".14"/>'
+                f'<path d="M100 12l40 15v33c0 27-17 45-40 58-23-13-40-31-40-58V27z" fill="none" stroke="{a}" stroke-width="3"/>'
+                f'<path d="M84 63l11 11 22-24" stroke="{teal}" stroke-width="7" fill="none"'
+                f' stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<rect x="12" y="46" width="40" height="26" rx="6" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<rect x="19" y="54" width="26" height="4" rx="2" fill="{a2}"/>'
+                f'<rect x="19" y="62" width="16" height="4" rx="2" fill="{line}"/>'
+                f'<rect x="148" y="46" width="40" height="26" rx="6" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<rect x="155" y="54" width="26" height="4" rx="2" fill="{teal}"/>'
+                f'<rect x="155" y="62" width="18" height="4" rx="2" fill="{line}"/>'
+                f'<circle cx="46" cy="100" r="5" fill="{amber}"/><circle cx="156" cy="100" r="5" fill="{rose}"/>'
+                f'</svg>')
+
+    if name == "upload":
+        return (f'{o} aria-label="Business files being carried into the workspace">'
+                f'<rect x="60" y="30" width="86" height="72" rx="10" fill="{card}" stroke="{line}" stroke-width="2"/>'
+                f'<path d="M60 40a10 10 0 0 1 10-10h22l8 10z" fill="{a}" opacity=".22"/>'
+                f'<rect x="72" y="56" width="46" height="6" rx="3" fill="{line}"/>'
+                f'<rect x="72" y="70" width="62" height="6" rx="3" fill="{line}"/>'
+                f'<rect x="72" y="84" width="34" height="6" rx="3" fill="{line}"/>'
+                f'<rect x="18" y="52" width="42" height="52" rx="8" fill="{a2}" opacity=".9"/>'
+                f'<text x="39" y="84" font-size="15" font-weight="700" fill="#fff" text-anchor="middle"'
+                f' font-family="Plus Jakarta Sans, sans-serif">CSV</text>'
+                f'<rect x="146" y="60" width="40" height="44" rx="8" fill="{rose}" opacity=".85"/>'
+                f'<text x="166" y="88" font-size="13" font-weight="700" fill="#fff" text-anchor="middle"'
+                f' font-family="Plus Jakarta Sans, sans-serif">PDF</text>'
+                f'<path d="M100 24v-14" stroke="{a}" stroke-width="4" stroke-linecap="round"/>'
+                f'<path d="M92 16l8-8 8 8" fill="none" stroke="{a}" stroke-width="4"'
+                f' stroke-linecap="round" stroke-linejoin="round"/>'
+                f'</svg>')
+
+    # "data" -- generic analysis scene
+    return (f'{o} aria-label="Charts and figures being analysed">'
+            f'<rect x="16" y="20" width="168" height="90" rx="12" fill="{card}" stroke="{line}" stroke-width="2"/>'
+            f'<rect x="30" y="72" width="18" height="26" rx="4" fill="{a2}"/>'
+            f'<rect x="54" y="56" width="18" height="42" rx="4" fill="{a}"/>'
+            f'<rect x="78" y="66" width="18" height="32" rx="4" fill="{teal}"/>'
+            f'<circle cx="146" cy="58" r="26" fill="{a}" opacity=".16"/>'
+            f'<path d="M146 32a26 26 0 0 1 26 26h-26z" fill="{a}"/>'
+            f'<path d="M146 58h26a26 26 0 0 1-13 22z" fill="{teal}"/>'
+            f'<rect x="30" y="34" width="52" height="6" rx="3" fill="{line}"/>'
+            f'</svg>')
+
+
 def _icon(path: str, color: str | None = None) -> str:
     color = color or palette()["accent"]
     return (f'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{color}" '
@@ -501,13 +659,13 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
          matters and what to investigate next.</p>
     </div>
     <div class="nx-grid">
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['see'])}</div><h4>See</h4>
+      <div class="nx-card"><div class="nx-art">{scene('see')}</div><h4>See</h4>
         <p>KPIs and trends computed directly from your own data, never estimated.</p></div>
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['explain'])}</div><h4>Explain</h4>
+      <div class="nx-card"><div class="nx-art">{scene('explain')}</div><h4>Explain</h4>
         <p>Ask questions in plain language &mdash; formal, casual, or Pidgin.</p></div>
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['act'])}</div><h4>Act</h4>
+      <div class="nx-card"><div class="nx-art">{scene('act')}</div><h4>Act</h4>
         <p>Every finding carries an evidence trail and a recommended next step.</p></div>
-      <div class="nx-card"><div class="nx-ico">{_icon(_ICONS['trust'])}</div><h4>Trust</h4>
+      <div class="nx-card"><div class="nx-art">{scene('trust')}</div><h4>Trust</h4>
         <p>The AI explains verified numbers. It is never the source of them.</p></div>
     </div>
 
@@ -619,11 +777,11 @@ def app_shell(workspace: str) -> tuple[str, bool]:
     """Renders the app header (logo-home, workspace chip, theme toggle) and the
     pill navigation. Returns (active_page, go_home_clicked).
     """
-    left, mid, right = st.columns([0.085, 0.76, 0.155])
+    left, mid, right = st.columns([0.06, 0.88, 0.06])
 
     with left:
         with st.container(key="nx_home"):
-            go_home = st.button("⌂", help="Back to landing page", use_container_width=True)
+            go_home = st.button("⌂", help="Back to landing page")
     with mid:
         _html(f"""
         <div style="display:flex;align-items:center;gap:.7rem;height:100%;padding-top:.15rem;">
@@ -635,8 +793,8 @@ def app_shell(workspace: str) -> tuple[str, bool]:
     with right:
         with st.container(key="nx_theme"):
             dark = current_mode() == "dark"
-            if st.button("☀ Light" if dark else "☾ Dark",
-                          help="Switch colour theme", use_container_width=True):
+            if st.button("☀" if dark else "☾",
+                          help="Switch to light theme" if dark else "Switch to dark theme"):
                 st.session_state["nx_theme"] = "light" if dark else "dark"
                 st.rerun()
 
@@ -684,6 +842,29 @@ def alert(kind: str, title: str, body: str) -> str:
     return (f'<div class="nx-alert" style="background:{bg};border-color:{color};border-left:4px solid {color};">'
             f'<b style="color:var(--nx-ink);font-size:.93rem;">{title}</b>'
             f'<div style="color:var(--nx-muted);font-size:.87rem;margin-top:.25rem;line-height:1.55;">{body}</div></div>')
+
+
+def chart_colors() -> list[str]:
+    p = palette()
+    return [p["accent"], "#3FBFB3", p["accent2"], p["warn"], "#F2789F", p["ok"]]
+
+
+def apply_chart_defaults() -> None:
+    """Sets Plotly Express' default sequences to the NexaSphere palette.
+
+    plotly_theme's `layout.colorway` alone is not enough: px assigns each
+    trace an explicit colour at creation time from its own default sequence,
+    which then wins over the layout colorway -- that is why charts stayed
+    Plotly-blue. Setting px.defaults up front fixes every chart at once
+    instead of threading color_discrete_sequence through each call site.
+    """
+    import plotly.express as px
+
+    p = palette()
+    px.defaults.color_discrete_sequence = chart_colors()
+    px.defaults.color_continuous_scale = [
+        [0.0, p["bad"]], [0.5, p["warn"]], [1.0, p["ok"]],
+    ]
 
 
 def plotly_theme(fig, height: int = 320):
