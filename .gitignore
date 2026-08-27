@@ -1,0 +1,9 @@
+internal_validation/
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+.pytest_cache/
+*.pdf
+!docs/**/*.pdf

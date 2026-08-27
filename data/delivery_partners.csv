@@ -1,0 +1,6 @@
+delivery_partner_id,partner_name,base_delay_prob
+DP01,SwiftShip,0.07
+DP02,ParcelPro,0.1
+DP03,RapidRoute,0.06
+DP04,UrbanMove,0.12
+DP05,ExpressLane,0.08

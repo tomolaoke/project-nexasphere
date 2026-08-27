@@ -1,0 +1,81 @@
+product_id,product_name,category,brand,unit_cost,list_price,target_margin_pct
+P0001,Laptops Model 01,Laptops,Zenith,771.97,1237.09,37.6
+P0002,Laptops Model 02,Laptops,Zenith,988.97,1601.72,38.26
+P0003,Laptops Model 03,Laptops,Axiom,718.1,1040.4,30.98
+P0004,Laptops Model 04,Laptops,Axiom,702.13,1200.34,41.51
+P0005,Laptops Model 05,Laptops,Orbis,1427.65,1772.92,19.47
+P0006,Laptops Model 06,Laptops,Orbis,562.05,900.7,37.6
+P0007,Laptops Model 07,Laptops,Zenith,802.5,1173.82,31.63
+P0008,Laptops Model 08,Laptops,Axiom,785.55,1162.11,32.4
+P0009,Laptops Model 09,Laptops,Orbis,629.19,942.0,33.21
+P0010,Laptops Model 10,Laptops,Axiom,880.36,1310.46,32.82
+P0011,Smartphones Model 01,Smartphones,NovaTech,818.69,1384.91,40.88
+P0012,Smartphones Model 02,Smartphones,Zenith,720.32,1046.79,31.19
+P0013,Smartphones Model 03,Smartphones,NovaTech,415.57,511.94,18.82
+P0014,Smartphones Model 04,Smartphones,NovaTech,716.69,1227.56,41.62
+P0015,Smartphones Model 05,Smartphones,Orbis,485.3,707.8,31.44
+P0016,Smartphones Model 06,Smartphones,Zenith,475.65,609.83,22.0
+P0017,Smartphones Model 07,Smartphones,NovaTech,421.24,656.03,35.79
+P0018,Smartphones Model 08,Smartphones,Vertex,747.7,1096.27,31.8
+P0019,Smartphones Model 09,Smartphones,Orbis,429.03,687.15,37.56
+P0020,Smartphones Model 10,Smartphones,Vertex,944.29,1372.63,31.21
+P0021,TVs Model 01,TVs,Orbis,891.52,1232.24,27.65
+P0022,TVs Model 02,TVs,Orbis,1226.02,2075.0,40.91
+P0023,TVs Model 03,TVs,Zenith,722.88,1120.53,35.49
+P0024,TVs Model 04,TVs,Vertex,1563.24,1925.98,18.83
+P0025,TVs Model 05,TVs,Zenith,964.47,1571.25,38.62
+P0026,TVs Model 06,TVs,NovaTech,1099.51,1883.52,41.62
+P0027,TVs Model 07,TVs,NovaTech,801.84,1277.44,37.23
+P0028,TVs Model 08,TVs,Axiom,382.18,608.84,37.23
+P0029,TVs Model 09,TVs,Axiom,1329.86,1738.15,23.49
+P0030,TVs Model 10,TVs,Vertex,436.69,718.47,39.22
+P0031,Refrigerators Model 01,Refrigerators,Orbis,1486.05,2253.59,34.06
+P0032,Refrigerators Model 02,Refrigerators,Zenith,614.96,814.41,24.49
+P0033,Refrigerators Model 03,Refrigerators,Axiom,1320.48,1847.6,28.53
+P0034,Refrigerators Model 04,Refrigerators,Axiom,1059.44,1389.27,23.74
+P0035,Refrigerators Model 05,Refrigerators,Axiom,1206.54,1710.3,29.45
+P0036,Refrigerators Model 06,Refrigerators,Vertex,1007.31,1469.57,31.46
+P0037,Refrigerators Model 07,Refrigerators,NovaTech,696.8,1063.09,34.46
+P0038,Refrigerators Model 08,Refrigerators,Zenith,1033.6,1615.43,36.02
+P0039,Refrigerators Model 09,Refrigerators,Axiom,904.55,1438.69,37.13
+P0040,Refrigerators Model 10,Refrigerators,Axiom,1790.06,2397.14,25.33
+P0041,Air Conditioners Model 01,Air Conditioners,Vertex,1272.84,1644.61,22.61
+P0042,Air Conditioners Model 02,Air Conditioners,Orbis,1022.85,1323.42,22.71
+P0043,Air Conditioners Model 03,Air Conditioners,Axiom,488.48,742.54,34.21
+P0044,Air Conditioners Model 04,Air Conditioners,NovaTech,432.33,658.71,34.37
+P0045,Air Conditioners Model 05,Air Conditioners,NovaTech,472.94,643.07,26.46
+P0046,Air Conditioners Model 06,Air Conditioners,Zenith,393.82,500.68,21.34
+P0047,Air Conditioners Model 07,Air Conditioners,Axiom,346.24,509.04,31.98
+P0048,Air Conditioners Model 08,Air Conditioners,Axiom,508.47,788.74,35.53
+P0049,Air Conditioners Model 09,Air Conditioners,Axiom,537.47,817.36,34.24
+P0050,Air Conditioners Model 10,Air Conditioners,NovaTech,794.99,1174.43,32.31
+P0051,Small Appliances Model 01,Small Appliances,Vertex,71.82,88.55,18.89
+P0052,Small Appliances Model 02,Small Appliances,Vertex,128.25,170.78,24.9
+P0053,Small Appliances Model 03,Small Appliances,NovaTech,80.61,125.16,35.59
+P0054,Small Appliances Model 04,Small Appliances,Orbis,290.08,489.71,40.76
+P0055,Small Appliances Model 05,Small Appliances,NovaTech,133.71,182.6,26.77
+P0056,Small Appliances Model 06,Small Appliances,Zenith,250.75,359.51,30.25
+P0057,Small Appliances Model 07,Small Appliances,Orbis,295.92,493.69,40.06
+P0058,Small Appliances Model 08,Small Appliances,NovaTech,168.05,222.65,24.52
+P0059,Small Appliances Model 09,Small Appliances,Orbis,181.01,221.82,18.4
+P0060,Small Appliances Model 10,Small Appliances,NovaTech,145.1,235.48,38.38
+P0061,Audio Model 01,Audio,Zenith,310.54,395.08,21.4
+P0062,Audio Model 02,Audio,Orbis,164.74,282.09,41.6
+P0063,Audio Model 03,Audio,Axiom,263.81,397.5,33.63
+P0064,Audio Model 04,Audio,NovaTech,104.14,139.63,25.42
+P0065,Audio Model 05,Audio,Vertex,249.76,319.78,21.9
+P0066,Audio Model 06,Audio,NovaTech,302.97,498.93,39.28
+P0067,Audio Model 07,Audio,Vertex,419.36,653.31,35.81
+P0068,Audio Model 08,Audio,Vertex,399.04,489.19,18.43
+P0069,Audio Model 09,Audio,NovaTech,255.42,400.31,36.19
+P0070,Audio Model 10,Audio,Orbis,98.33,137.72,28.6
+P0071,Gaming Model 01,Gaming,NovaTech,704.19,1088.5,35.31
+P0072,Gaming Model 02,Gaming,Axiom,719.02,915.34,21.45
+P0073,Gaming Model 03,Gaming,NovaTech,465.62,634.28,26.59
+P0074,Gaming Model 04,Gaming,Orbis,262.51,329.93,20.43
+P0075,Gaming Model 05,Gaming,Axiom,552.95,826.11,33.07
+P0076,Gaming Model 06,Gaming,NovaTech,664.4,1143.13,41.88
+P0077,Gaming Model 07,Gaming,Vertex,280.55,402.77,30.34
+P0078,Gaming Model 08,Gaming,Zenith,428.47,676.0,36.62
+P0079,Gaming Model 09,Gaming,NovaTech,647.24,926.57,30.15
+P0080,Gaming Model 10,Gaming,Axiom,309.8,419.88,26.22

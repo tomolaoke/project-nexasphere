@@ -1,0 +1,10 @@
+store_id,store_name,region,city,store_type
+S001,NexaSphere Kano,North,Kano,Standard
+S002,NexaSphere Kaduna,North,Kaduna,Flagship
+S003,NexaSphere Lagos,West,Lagos,Standard
+S004,NexaSphere Ibadan,West,Ibadan,Standard
+S005,NexaSphere Benin,West,Benin,Flagship
+S006,NexaSphere Enugu,East,Enugu,Outlet
+S007,NexaSphere Port Harcourt,East,Port Harcourt,Standard
+S008,NexaSphere Abuja,Central,Abuja,Outlet
+S009,NexaSphere Ilorin,Central,Ilorin,Standard

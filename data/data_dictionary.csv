@@ -1,0 +1,71 @@
+file,field,description,type
+sales.csv,order_id,Unique order identifier,string
+sales.csv,order_date,Date of order,date
+sales.csv,customer_id,Customer identifier,string
+sales.csv,product_id,Product identifier,string
+sales.csv,store_id,Store identifier,string
+sales.csv,channel,Sales channel,categorical
+sales.csv,quantity,Units sold,integer
+sales.csv,payment_method,Payment method,categorical
+sales.csv,unit_cost,Cost per unit,numeric
+sales.csv,list_price,List price per unit,numeric
+sales.csv,discount_pct,Discount applied,decimal
+sales.csv,unit_price,Actual selling price,numeric
+sales.csv,revenue,Gross sales revenue,numeric
+sales.csv,cost,Cost of goods sold,numeric
+sales.csv,gross_profit,Revenue minus cost,numeric
+sales.csv,gross_margin_pct,Gross profit as % of revenue,decimal
+products.csv,product_id,Unique product identifier,string
+products.csv,product_name,Product name,string
+products.csv,category,Product category,categorical
+products.csv,brand,Product brand,categorical
+products.csv,unit_cost,Unit cost,numeric
+products.csv,list_price,List price,numeric
+products.csv,target_margin_pct,Target gross margin,decimal
+stores.csv,store_id,Store identifier,string
+stores.csv,store_name,Store name,string
+stores.csv,region,Geographic region,categorical
+stores.csv,city,City,categorical
+stores.csv,store_type,Store format,categorical
+customers.csv,customer_id,Customer identifier,string
+customers.csv,segment,Customer segment,categorical
+customers.csv,region,Customer region,categorical
+customers.csv,acquisition_channel,Customer acquisition channel,categorical
+returns.csv,return_id,Return identifier,string
+returns.csv,order_id,Original order identifier,string
+returns.csv,return_date,Return date,date
+returns.csv,product_id,Returned product,string
+returns.csv,quantity,Units returned,integer
+returns.csv,return_reason,Reason for return,categorical
+returns.csv,refund_amount,Refund value,numeric
+deliveries.csv,order_id,Order identifier,string
+deliveries.csv,delivery_partner_id,Delivery partner identifier,string
+deliveries.csv,promised_days,Promised delivery time,integer
+deliveries.csv,actual_days,Actual delivery time,integer
+deliveries.csv,delivery_status,Delivery outcome,categorical
+deliveries.csv,delivery_rating,Customer delivery rating,decimal
+marketing.csv,campaign_id,Campaign identifier,string
+marketing.csv,campaign_name,Campaign name,string
+marketing.csv,channel,Marketing channel,categorical
+marketing.csv,spend,Campaign spend,numeric
+marketing.csv,attributed_revenue,Attributed revenue,numeric
+marketing.csv,conversions,Conversions,integer
+marketing.csv,roi,Return on investment ratio,decimal
+inventory_daily.csv,snapshot_date,Inventory snapshot date,date
+inventory_daily.csv,store_id,Store identifier,string
+inventory_daily.csv,product_id,Product identifier,string
+inventory_daily.csv,opening_stock,Opening units,integer
+inventory_daily.csv,units_sold,Units sold that day,integer
+inventory_daily.csv,closing_stock,Closing units,integer
+inventory_daily.csv,stockout_flag,Whether closing stock is zero,boolean
+inventory_daily.csv,excess_stock_flag,Whether stock is unusually high,boolean
+employees.csv,employee_id,Employee identifier,string
+employees.csv,employee_name,Employee name,string
+employees.csv,store_id,Assigned store,string
+employees.csv,role,Employee role,categorical
+targets.csv,month,Target month,YYYY-MM
+targets.csv,store_id,Store identifier,string
+targets.csv,revenue_target,Monthly revenue target,numeric
+targets.csv,gross_profit_target,Monthly gross profit target,numeric
+targets.csv,on_time_delivery_target_pct,Target on-time delivery rate,decimal
+targets.csv,return_rate_target_pct,Target return rate,decimal

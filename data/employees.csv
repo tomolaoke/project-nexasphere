@@ -1,0 +1,91 @@
+employee_id,employee_name,store_id,role
+E0001,Employee 0001,S001,Sales Associate
+E0002,Employee 0002,S001,Sales Associate
+E0003,Employee 0003,S001,Store Manager
+E0004,Employee 0004,S001,Sales Associate
+E0005,Employee 0005,S001,Sales Associate
+E0006,Employee 0006,S001,Sales Associate
+E0007,Employee 0007,S001,Sales Associate
+E0008,Employee 0008,S001,Sales Associate
+E0009,Employee 0009,S001,Sales Associate
+E0010,Employee 0010,S001,Sales Associate
+E0011,Employee 0011,S002,Store Manager
+E0012,Employee 0012,S002,Sales Associate
+E0013,Employee 0013,S002,Sales Associate
+E0014,Employee 0014,S002,Store Manager
+E0015,Employee 0015,S002,Sales Associate
+E0016,Employee 0016,S002,Sales Associate
+E0017,Employee 0017,S002,Senior Sales Associate
+E0018,Employee 0018,S002,Sales Associate
+E0019,Employee 0019,S002,Senior Sales Associate
+E0020,Employee 0020,S002,Sales Associate
+E0021,Employee 0021,S003,Sales Associate
+E0022,Employee 0022,S003,Sales Associate
+E0023,Employee 0023,S003,Sales Associate
+E0024,Employee 0024,S003,Senior Sales Associate
+E0025,Employee 0025,S003,Sales Associate
+E0026,Employee 0026,S003,Store Manager
+E0027,Employee 0027,S003,Senior Sales Associate
+E0028,Employee 0028,S003,Sales Associate
+E0029,Employee 0029,S003,Senior Sales Associate
+E0030,Employee 0030,S003,Sales Associate
+E0031,Employee 0031,S004,Sales Associate
+E0032,Employee 0032,S004,Senior Sales Associate
+E0033,Employee 0033,S004,Sales Associate
+E0034,Employee 0034,S004,Sales Associate
+E0035,Employee 0035,S004,Sales Associate
+E0036,Employee 0036,S004,Sales Associate
+E0037,Employee 0037,S004,Sales Associate
+E0038,Employee 0038,S004,Sales Associate
+E0039,Employee 0039,S004,Sales Associate
+E0040,Employee 0040,S004,Sales Associate
+E0041,Employee 0041,S005,Sales Associate
+E0042,Employee 0042,S005,Sales Associate
+E0043,Employee 0043,S005,Sales Associate
+E0044,Employee 0044,S005,Senior Sales Associate
+E0045,Employee 0045,S005,Sales Associate
+E0046,Employee 0046,S005,Sales Associate
+E0047,Employee 0047,S005,Sales Associate
+E0048,Employee 0048,S005,Sales Associate
+E0049,Employee 0049,S005,Sales Associate
+E0050,Employee 0050,S005,Store Manager
+E0051,Employee 0051,S006,Store Manager
+E0052,Employee 0052,S006,Senior Sales Associate
+E0053,Employee 0053,S006,Store Manager
+E0054,Employee 0054,S006,Sales Associate
+E0055,Employee 0055,S006,Sales Associate
+E0056,Employee 0056,S006,Senior Sales Associate
+E0057,Employee 0057,S006,Sales Associate
+E0058,Employee 0058,S006,Senior Sales Associate
+E0059,Employee 0059,S006,Senior Sales Associate
+E0060,Employee 0060,S006,Store Manager
+E0061,Employee 0061,S007,Sales Associate
+E0062,Employee 0062,S007,Senior Sales Associate
+E0063,Employee 0063,S007,Sales Associate
+E0064,Employee 0064,S007,Sales Associate
+E0065,Employee 0065,S007,Sales Associate
+E0066,Employee 0066,S007,Senior Sales Associate
+E0067,Employee 0067,S007,Store Manager
+E0068,Employee 0068,S007,Sales Associate
+E0069,Employee 0069,S007,Sales Associate
+E0070,Employee 0070,S007,Sales Associate
+E0071,Employee 0071,S008,Store Manager
+E0072,Employee 0072,S008,Sales Associate
+E0073,Employee 0073,S008,Sales Associate
+E0074,Employee 0074,S008,Sales Associate
+E0075,Employee 0075,S008,Sales Associate
+E0076,Employee 0076,S008,Sales Associate
+E0077,Employee 0077,S008,Sales Associate
+E0078,Employee 0078,S008,Store Manager
+E0079,Employee 0079,S008,Senior Sales Associate
+E0080,Employee 0080,S008,Sales Associate
+E0081,Employee 0081,S009,Store Manager
+E0082,Employee 0082,S009,Sales Associate
+E0083,Employee 0083,S009,Sales Associate
+E0084,Employee 0084,S009,Sales Associate
+E0085,Employee 0085,S009,Sales Associate
+E0086,Employee 0086,S009,Senior Sales Associate
+E0087,Employee 0087,S009,Sales Associate
+E0088,Employee 0088,S009,Sales Associate
+E0089,Employee 0089,S009,Senior Sales Associate
+E0090,Employee 0090,S009,Sales Associate

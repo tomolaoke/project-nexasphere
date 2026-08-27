@@ -1,0 +1,9 @@
+campaign_id,campaign_name,channel,spend,target_segment,period,attributed_revenue,conversions,roi
+C01,New Year Upgrade,Email,18000,Value Seekers,2026-H1,95000,310,4.28
+C02,Work From Home,Social,26000,Professionals,2026-H1,155000,420,4.96
+C03,Smart Home Week,Search,32000,Home Makers,2026-H1,175000,510,4.47
+C04,Gaming Festival,Social,24000,Gamers,2026-H1,142000,390,4.92
+C05,Summer Cooling,Search,38000,Home Makers,2026-H1,255000,680,5.71
+C06,Premium Electronics,Email,21000,Premium,2026-H1,98000,240,3.67
+C07,Clearance Drive,Social,15000,Value Seekers,2026-H1,72000,290,3.8
+C08,Business Tech Expo,Events,45000,Corporate,2026-H1,128000,185,1.84
