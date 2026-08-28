@@ -79,3 +79,41 @@ before and after the post-audit hardening pass:
   *quality* of live LLM-generated prose -- that path is instead protected by
   the numeric/entity grounding guards, which run on every real generation
   and were separately verified with adversarial inputs.
+
+---
+
+## Update — current test inventory
+
+**140 tests, all passing.**
+
+```bash
+python -m pytest tests/ -q
+```
+
+| File | Coverage |
+|---|---|
+| `test_analytics.py` | KPI correctness vs. independently computed ground truth; finding grounding; intent routing for all nine case-study questions and paraphrases; meta/out-of-scope intents; Pidgin routing; adversarial grounding (wrong number, wrong entity) |
+| `test_data_integrity.py` | Referential integrity, valid ranges, date validity, flag consistency |
+| `test_evaluation_suite.py` | The 40-question evaluation suite |
+| `test_user_data.py` | CSV loading, empty/malformed files, profiling, date/numeric detection, mapping proposals and type-filtered options, capability detection, derived profit, dataset window, generic analytics, honest refusal |
+| `test_ingestion.py` | CSV/TSV/JSON/XLSX/DOCX/TXT/MD ingestion, DATA vs CONTEXT classification, declined images/video, malformed and empty files, multi-file handling, candidate relationships (and that they are *not* auto-joined), primary-table selection |
+
+### Regression tests written from real defects
+
+Each of these encodes a bug found during development, so it cannot silently
+return:
+
+- **Marketing ROI mis-routed to returns** — "return on investment" contains "return".
+- **Ungrounded number accepted** — adversarial narration must be rejected.
+- **Correct number, wrong entity** — crediting one partner with another's rate must be rejected.
+- **Meta question answered with a KPI dump** — "What can I ask?" must list capabilities and must not contain business figures.
+- **Unsupported question answered with numbers** — declined answers must contain no business figures.
+- **Capability matrix contradicting the KPI panel** — revenue+cost must report Profitability as supported.
+- **Primary table chosen by size** — a large inventory snapshot with no money column must lose to a smaller sales table.
+- **Dataset window falling back to demo dates** — must return `None` when no date column is mapped, never another dataset's range.
+
+### Manual verification
+
+Browser-driven QA on each release: landing page, both CTAs, all five pages in
+both workspaces, upload → profile → map → confirm, light and dark themes,
+mobile (375px), and console/server error checks.

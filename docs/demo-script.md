@@ -1,69 +1,119 @@
-# 3-Minute Demo Video Script
+# Demo Video Script
 
-Target runtime: 3:00. No dead air, no "let me just switch windows" pauses —
-record with the app already loaded and every click rehearsed.
+**Target: 3:00. Hard limit: 5:00.**
 
-## 0:00–0:20 — Hook (the problem)
+Record with the app already running, the demo dataset loaded, and every click
+rehearsed. Show the product working — not the code.
 
-> "NexaSphere Retail's revenue is up 63% this month. That sounds like great
-> news — until you check profit. It only grew 54%. Something is eating the
+---
+
+### 0:00–0:20 · The problem
+
+> "NexaSphere Retail's revenue is up 63% this month. That sounds like good news
+> — until you check profit. It only grew 54%. Something is eating the
 > difference, and finding out normally means opening five spreadsheets and
-> doing the math by hand."
+> doing the maths by hand."
 
-*(Screen: a mock of scattered spreadsheets, or simply state it over a plain
-slide — keep it fast.)*
+*Screen: landing page. The hero stat strip already shows those real numbers.*
 
-## 0:20–0:40 — Solution
+---
 
-> "This is NexaSphere's AI Business Intelligence Assistant. It connects
-> sales, returns, delivery, inventory and marketing data, and tells
-> management exactly what needs attention — with every number traceable
-> back to a real calculation. The AI explains the evidence. It never
-> invents it."
+### 0:20–0:40 · What it is
 
-*(Screen: app loads, KPI row visible.)*
+> "NexaSphere turns business data into decisions. It calculates the numbers
+> itself, then uses AI to explain what they mean — and it never lets the AI
+> invent a figure."
 
-## 0:40–2:10 — Live product (the core demo)
+*Click **Explore Demo**. Overview loads: KPIs with sparklines, the margin
+warning, revenue-vs-profit chart.*
 
-1. Show the KPI row and the margin-pressure warning banner. *"Revenue up
-   63.2%, profit only up 53.8% — the system flagged this the moment the
-   page loaded."*
-2. Switch to the **Findings** tab. Scroll through 2-3 cards: the
-   delivery-partner gap (UrbanMove, 34% delayed vs. ~8% for others), the
-   Audio return-rate outlier (12.77%, "Not as Expected" as the leading
-   reason), the inventory imbalance (TV stockouts vs. AC excess). Open one
-   evidence panel to show the raw computed numbers behind the sentence.
-3. Switch to **Ask a Question**. Type live: *"Is revenue growth leading to
-   stronger profitability?"* Show the answer land, and point at "Narration
-   source: template/llm" and the evidence JSON underneath. *"Whether or not
-   a language model is even running, the numbers are always real."*
-4. Quick pass through **Dashboards** — the revenue/profit trend line,
-   category margin chart, campaign ROI table.
+---
 
-## 2:10–2:35 — Impact
+### 0:40–1:20 · The hero question
 
-> "What used to take a manager 30-60 minutes of manual cross-referencing per
-> question now takes seconds — and unlike a generic AI chatbot bolted onto
-> a spreadsheet, every number here comes from a tested, deterministic
-> analytics engine. The AI only ever explains verified evidence."
+*Go to **Ask NexaSphere**. Type live:*
 
-## 2:35–2:55 — Why this, why us
+> "Is revenue growth leading to stronger profitability?"
 
-> "This isn't 'chat with your CSV.' It's a decision-support system built on
-> one hard rule: the AI never calculates, it only narrates — enforced in
-> code, not just promised in a prompt. Built solo, 100% free and
-> open-source stack, production-grade architecture and test coverage."
+*The answer streams in.*
 
-## 2:55–3:00 — Close
+> "No — revenue grew 63.2%, gross profit only 53.8%, margin down 1.45 points.
+> And here's the part that matters —"
 
-> "NexaSphere: turning scattered business data into decisions worth acting
-> on. Thank you."
+*Expand **Evidence**.*
+
+> "— every number in that sentence came from this computed evidence. The AI
+> rephrased it. It didn't calculate it."
+
+*Then type:*
+
+> "Sales dey go up, profit dey follow?"
+
+> "Same question in Pidgin. Same intent, same verified numbers, answered in the
+> same register."
+
+---
+
+### 1:20–1:50 · Findings and dashboards
+
+*Go to **Findings**.*
+
+> "Six findings, ranked. UrbanMove is running a 34% delayed-delivery rate
+> against 7.8% for every other partner. Audio returns at 12.77%. Each one
+> carries its evidence and a recommended next step — and note the wording:
+> 'consistent with', 'worth investigating'. It doesn't claim causation it
+> hasn't established."
+
+*Go to **Dashboards**. Scroll once through the charts.*
+
+---
+
+### 1:50–2:25 · Analyze My Business
+
+> "But this is a fictional retailer. Can a real business use it?"
+
+*Click **Analyze My Business**. Enter a business name and industry. Upload a CSV
+with completely different column names.*
+
+> "Different schema entirely. NexaSphere profiles it, proposes what each column
+> means — and I confirm, it doesn't assume."
+
+*Click **Confirm & Analyze**.*
+
+> "Now the whole app is their workspace. Their name, their date range, their
+> charts. And critically —"
+
+*Point at the capability matrix.*
+
+> "— it says what it *can't* answer. No delivery columns, no delivery analysis.
+> It tells you what's missing instead of inventing it."
+
+---
+
+### 2:25–2:45 · Why it's trustworthy
+
+*Return to the landing page's architecture panel.*
+
+> "Data, verified calculations, evidence, AI explanation, recommendation. The
+> AI only ever sees computed evidence — never your raw file. Any number it
+> produces that isn't in that evidence is rejected before you see it. 140 tests,
+> including adversarial ones that try to slip wrong numbers and wrong
+> attributions past the guardrail."
+
+---
+
+### 2:45–3:00 · Close
+
+> "Traditional dashboards tell you what happened. NexaSphere tells you why it
+> matters and what to investigate next — without letting AI invent the numbers.
+> Runs on entirely free, open-source tooling. Zero cost."
+
+*End on the landing page.*
+
+---
 
 ## Recording notes
-
-- Record the screen at 1280×800 or higher; zoom browser to ~110% so text is
-  legible on a projector.
-- Have Ollama running before recording so at least one "Narration source:
-  llm" moment appears — but the template fallback should also be shown at
-  least once, deliberately, to prove the app doesn't depend on it.
-- Cut mercilessly — a 3:00 cap does not forgive a slow mouse.
+- Hide the sidebar for a cleaner frame if preferred.
+- Have the upload CSV on the desktop, ready to drag.
+- Warm the deployed app a few minutes beforehand so it isn't cold.
+- Pre-run each AI question once so responses are cached and fast on camera.

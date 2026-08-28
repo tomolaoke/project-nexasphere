@@ -1,0 +1,104 @@
+# Deployment
+
+## Which platform (and why not Netlify or Vercel)
+
+Netlify and Vercel host **static sites and serverless functions**. Streamlit is
+a long-running Python server holding a websocket open per user, so neither can
+host it without rewriting the app. Use a platform that runs a Python process:
+
+| Platform | Free tier | Verdict |
+|---|---|---|
+| **Streamlit Community Cloud** | Free, unlimited public apps | **Recommended.** Purpose-built for Streamlit, reads `requirements.txt`, has a Secrets UI, deploys from GitHub in ~2 minutes. |
+| Hugging Face Spaces | Free CPU tier | Good alternative. Needs a `README.md` header block or a Dockerfile. |
+| Render | Free web service | Works, but free instances sleep after inactivity — a cold start mid-demo is a real risk. |
+| Netlify / Vercel | — | **Cannot run Streamlit.** Static/serverless only. |
+
+Ollama cannot run on any free tier (no GPU, no persistent model storage), so
+the deployed app uses the **Groq free tier** for AI narration, and falls back
+to verified template narration if no key is set. Numbers are identical either
+way.
+
+---
+
+## Step 1 — Push to GitHub (branch `main`)
+
+The repo currently uses `master`. Rename it and push:
+
+```bash
+git branch -M main
+```
+
+Create an **empty** repo on github.com (no README/licence — the repo already
+has them), then:
+
+```bash
+git remote add origin https://github.com/<your-username>/nexasphere.git
+```
+
+```bash
+git push -u origin main
+```
+
+### Confirm no secrets are committed
+
+`.gitignore` already excludes `.streamlit/secrets.toml`, `internal_validation/`,
+`__pycache__/`, `.venv/`. Verify before pushing:
+
+```bash
+git check-ignore -v .streamlit/secrets.toml
+```
+
+That must print a match. Then confirm nothing sensitive is tracked:
+
+```bash
+git ls-files | grep -iE "secret|\.env|credential|token|key" || echo "CLEAN"
+```
+
+`.streamlit/secrets.toml.example` **is** committed on purpose — it is a
+placeholder template containing no real key.
+
+> If a real key was ever committed, rotating it at
+> [console.groq.com/keys](https://console.groq.com/keys) is the only reliable
+> fix — deleting the file does not remove it from git history.
+
+---
+
+## Step 2 — Deploy on Streamlit Community Cloud
+
+1. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
+2. **New app** → pick your repo → branch `main` → main file `app.py`.
+3. **Advanced settings → Secrets**, paste:
+   ```toml
+   GROQ_API_KEY = "gsk_your_key_here"
+   ```
+4. **Deploy.** First build takes 2–5 minutes.
+
+You get a public URL like `https://nexasphere.streamlit.app` — mobile-friendly
+and shareable. That is the "Live Demo / Testing Link" for the submission form.
+
+### Verify after deploying
+
+- Sidebar reads **"AI connected (free hosted Groq · …)"** — if it says no backend, the secret didn't save.
+- Landing page loads; **Explore Demo** shows Revenue +63.2% / Profit +53.8%.
+- **Ask NexaSphere** returns a streamed, grounded answer.
+- **Analyze My Business** accepts a CSV upload.
+- Open the URL in a private window (proves it works logged-out) and on a phone.
+
+---
+
+## Troubleshooting
+
+**Narration silently falls back to template.** Groq periodically retires model
+names. Check the sidebar, then update `GROQ_MODEL` in
+[nlg.py](../src/nexasphere/nlg.py) to a currently listed model:
+
+```bash
+curl -s https://api.groq.com/openai/v1/models -H "Authorization: Bearer $GROQ_API_KEY"
+```
+
+**Build fails on a dependency.** Confirm `requirements.txt` is at the repo root
+and the app's Python version is 3.9+.
+
+**App sleeps.** Community Cloud sleeps public apps after long inactivity; the
+first visit wakes it in a few seconds. Open the URL a few minutes before
+judging so it is warm.

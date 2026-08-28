@@ -66,3 +66,24 @@ was chosen — all free/open-source, $0 total cost.
 | Vector database / RAG (pgvector) | The case study's data is small, structured and tabular — retrieval-augmented generation over documents wasn't the right tool for tabular KPI question-answering |
 | n8n / workflow automation | Considered in early strategy discussion for a different case study (autonomous action execution); out of scope once Case Study 4 was locked in, since this system deliberately stops at recommendation, not execution (see [docs/responsible-ai.md](docs/responsible-ai.md)) |
 | A general NL2SQL / text-to-pandas model | The case study specifies a closed set of required questions; a tested, deterministic rule-based router covers all of them more reliably (see [docs/ai-architecture.md](docs/ai-architecture.md)) |
+
+---
+
+## Update — features added since the initial build
+
+| Feature | Module | Notes |
+|---|---|---|
+| Hosted AI backend (Groq free tier) | `nlg.py` | Enables AI narration where Ollama can't run (free hosting). Same guardrail. |
+| Multilingual / Pidgin questions | `qa.py`, `nlg.py` | Concept-based routing; model replies in the user's register without changing numbers. |
+| Meta + out-of-scope intents | `qa.py` | "What can I ask?" answered with a capability menu; non-business questions declined without numbers. |
+| Streaming chat | `app.py`, `nlg.py` | Chat bubbles, persisted history, suggestion chips. Streams verified text, not raw tokens. |
+| Multi-file, multi-format ingestion | `ingestion.py` | CSV/TSV/XLSX/JSON as DATA; PDF/DOCX/TXT/MD as CONTEXT; images/video declined with reasons. |
+| Business workspace | `app.py`, `user_data.py` | Required business details, isolated session workspace, own sidebar/window/pages. |
+| Profiling + semantic mapping | `user_data.py` | Type-filtered dropdowns, quality score, capability matrix. |
+| Design system, landing page, light/dark | `theme.py` | CSS custom properties; generated inline SVG; no image assets. |
+| Varied chart types | `app.py` | Nine chart forms chosen by question shape. |
+
+### Dependencies added
+`openpyxl` (XLSX), `pypdf` (PDF), `python-docx` (DOCX) — all free and
+open-source, all parsing in-process with no network calls. No paid dependency
+was introduced at any point.

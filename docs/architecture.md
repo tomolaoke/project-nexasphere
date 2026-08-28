@@ -109,3 +109,51 @@ per-business data isolation, and move the Ollama call behind a queue so
 narration doesn't block the request thread under load. See
 [FeatureIntegrations.md](../FeatureIntegrations.md) for the full list of
 what's in-scope for the prototype vs. deferred.
+
+---
+
+## Update — modules added since the initial architecture
+
+| Module | Responsibility |
+|---|---|
+| `ingestion.py` | Multi-file, multi-format upload. Sorts files into DATA (CSV/TSV/XLSX/JSON) and CONTEXT (PDF/DOCX/TXT/MD); declines images/video with an explanation; selects one primary table by analytical usefulness; surfaces candidate relationships without joining. |
+| `user_data.py` | Schema-agnostic pipeline for uploaded data: profiling, semantic mapping, capability matrix, generic analytics, findings and a capability-aware question router. |
+| `theme.py` | Presentation only — design system (light/dark via CSS custom properties), landing page, app chrome, generated inline SVG, Plotly theming. Imports no analytics module. |
+
+### Why `user_data.py` is separate from `analytics.py`
+
+`analytics.py` and `insights.py` are deliberately coupled to the NexaSphere
+schema — specific joins (`sales.merge(products, on="product_id")`) and specific
+column names. Generalising them would risk the competition demo. `user_data.py`
+is a smaller, schema-agnostic engine that only computes what the mapped columns
+support. The two share the AI narration and grounding layer, which was already
+dataset-agnostic and needed no change.
+
+### Workspaces
+
+```
+Landing
+ ├── Explore Demo        → demo workspace   (data/*.csv, cached, read-only)
+ └── Analyze My Business → business workspace (session state, isolated)
+```
+
+Both render the same five pages (Overview, Findings, Ask, Dashboards, Data)
+against different engines. User uploads cannot overwrite the demo dataset; the
+active workspace is always named in the header and sidebar.
+
+### Request flow
+
+```
+main()
+ ├── theme.inject_css()            palette by session theme
+ ├── theme.apply_chart_defaults()  Plotly colour defaults
+ ├── landing gate                  → render_landing()
+ ├── business setup gate           → required details before upload
+ ├── render_sidebar()              backend status, dataset window, privacy
+ ├── theme.app_shell()             logo/home, workspace, theme toggle, pill nav
+ └── page dispatch                 demo engine or user engine
+```
+
+Navigation is staged through `nx_pending_page` and applied *before* the nav
+widget is instantiated — Streamlit raises if a widget's key is written after
+the widget exists.

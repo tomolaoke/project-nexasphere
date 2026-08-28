@@ -92,3 +92,85 @@ guardrails) rather than a large amount of unfinished scaffolding.
 - Add an evaluation harness that runs a larger battery of paraphrased
   questions against the intent router to measure and improve match rate
   before falling back.
+
+---
+
+## Phase 2 — Generalisation, UI rebuild, deployment readiness
+
+### Bugs found and fixed (each now has a regression test)
+
+**"What questions can I ask?" answered with a revenue dump.** The router ran
+nine keyword matchers; a question containing no business keyword fell through to
+`fallback_overview`, which printed the KPI snapshot. There was no concept of a
+question *about the assistant*. Added `meta_capabilities` and `out_of_scope`
+intents ahead of all topic matchers, and stopped the unmatched fallback from
+emitting numbers at all — answering an unmatched question with unrelated totals
+reads as bluffing.
+
+**Capability matrix contradicted the KPI panel.** With `cost` but no `profit`
+column, `kpi_summary` derived profit and displayed a margin, while
+`capability_matrix` only checked for an explicit `profit` column — so the UI
+showed "51.67% margin" beside "Profitability: not detected". Fixed by deriving
+`profit` once in `build_canonical_frame` so every downstream function agrees.
+
+**Groq narration silently fell back to templates.** The default model name had
+been retired by Groq (404). Fixed by moving to a currently listed model; the
+symptom is documented in DEPLOYMENT.md because it will recur.
+
+**Streamlit header covered the navigation.** `stHeader` is a 60px opaque bar at
+z-index 999990; content padding was 22px, so it painted over the navbar and pill
+tabs. Made transparent and click-through with padding below. Also reverted an
+earlier over-correction that hid the whole toolbar: the running/connecting
+indicator is real feedback and hiding it makes a slow AI call look like a freeze.
+Only the Deploy button is hidden.
+
+**Indented HTML rendered as code blocks.** Streamlit runs markdown through a
+Markdown renderer, which treats 4+ space indentation as code. `textwrap.dedent`
+was insufficient because interpolated SVG already sits at column 0, zeroing the
+common prefix. Strip every line instead — safe for HTML.
+
+**Charts stayed Plotly-blue.** `layout.colorway` was set, but Plotly Express
+assigns each trace an explicit colour at creation, which wins. Fixed by setting
+`px.defaults` once at startup.
+
+**Navigation assignment raised StreamlitAPIException.** "Confirm & Analyze"
+wrote to `nx_active_page` — the nav radio's own key — after the widget was
+instantiated, so it silently did nothing. Requested pages are now staged in
+`nx_pending_page` and applied before the widget is built.
+
+**Stale mapping selections overrode fresh suggestions.** A keyed Streamlit
+widget takes its value from session state and *ignores* the `index` argument, so
+the previous file's mapping persisted into the next upload — which is how a
+correctly detected `snapshot_date` was reported as "no date column mapped".
+`ud_map_*` keys are now cleared whenever the upload set changes.
+
+**Primary table chosen by row count.** Uploading a business folder selected
+`inventory_daily.csv` (130k rows, no money column) over `sales.csv`. Selection
+is now scored by analytical usefulness — money column first, then date, size
+only breaking ties.
+
+**Sidebar conflated two states.** "Not analyzed yet" and "analyzed, but no date
+column" shared one message, making a pre-analysis workspace look like a mapping
+failure. Now distinct.
+
+### Judgement calls
+
+**Declined images/video rather than faking support.** Reliable OCR needs a
+system Tesseract binary unavailable on free hosting, and there's no dependable
+free path from video to trustworthy figures. A broken feature is worse than an
+explained absence — and it is the one area where a judge could dismantle the
+trust story in thirty seconds.
+
+**Streamed verified text, not raw model tokens.** Streaming live would put
+numbers on screen before the grounding check has run. A figure that has been
+read has already misinformed the reader even if retracted.
+
+**Corrected an earlier wrong claim.** I had told the user bespoke layouts were
+impossible in Streamlit. That was wrong — the DOM-order constraint applies only
+to interactive widgets; `unsafe_allow_html` content lands in the main document,
+so CSS Grid, layering and inline SVG were available throughout. The rebuilt UI
+depends on that, and the correction is recorded in `theme.py`.
+
+**Kept `analytics.py` untouched.** Generalising it would have risked the
+competition demo. `user_data.py` is a separate, smaller engine; the two share
+the narration and grounding layer, which was already dataset-agnostic.

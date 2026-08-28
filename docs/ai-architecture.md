@@ -69,8 +69,51 @@ which source produced each piece of text ("Narration source: template" or
 
 | Failure | Behaviour |
 |---|---|
-| Ollama not running | Falls back to template narration automatically |
+| Ollama not running | Falls back to hosted Groq, then to template narration |
 | Ollama returns malformed JSON / times out | Falls back to template narration |
 | Model output contains an ungrounded number | Discarded; template narration shown instead |
-| Question doesn't match any known intent | Honest "I couldn't map that question" + overall KPI snapshot, never a guess |
+| Question doesn't match any known intent | Honest refusal naming the supported analyses. It does **not** dump KPIs: answering an unmatched question with unrelated revenue totals reads as bluffing |
 | Missing/malformed dataset file | `FileNotFoundError` raised at load time with the expected path, not a silent empty result |
+
+
+---
+
+## Update — backends, language and streaming
+
+### Three backends, one guardrail
+Narration resolves in order: **Ollama** (local, offline, preferred) →
+**Groq free tier** (hosted; required on free hosting, which cannot run Ollama)
+→ **deterministic template**. The numeric and entity grounding checks are
+applied identically regardless of which backend produced the text — the
+guardrail is not per-backend. `NarrationResult` carries `backend` and `model`
+so the UI can name the exact source, and the sidebar always shows the active one.
+
+### Meta and out-of-scope intents
+Two intents run **before** all topic matchers:
+
+- `meta_capabilities` — "What can I ask?" is a legitimate product question and
+  is answered with a capability menu built from what the active dataset
+  actually supports.
+- `out_of_scope` — clearly non-business questions are declined without numbers.
+
+Previously both fell through to a KPI dump. Answering a question *about the
+assistant* with unrelated revenue totals is a bug, not a graceful fallback.
+
+### Multilingual and informal input
+The router matches business *concepts*, so informal English and Nigerian Pidgin
+phrasings ("Sales dey go up, profit dey follow?") resolve to the same
+structured intent as formal English. The narration prompt instructs the model
+to reply in the user's own language and register **without changing the
+numbers**. Pidgin routing is covered by tests.
+
+### Streaming
+The chat UI streams **already-verified** text, not raw model tokens. Streaming
+a model live would put numbers on screen before the grounding check has run,
+and a figure that has been read has already misinformed the reader even if it
+is retracted a moment later. Narration is generated and validated in full,
+then revealed.
+
+### User-uploaded data
+`user_data.py` produces evidence in the same shape, so uploaded data flows
+through the identical narration and grounding path — shared code, not a
+parallel implementation. The model still never sees a raw row.
