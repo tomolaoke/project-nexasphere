@@ -165,5 +165,5 @@ Project-NexaSphere/
 
 ## Licence
 
-Built for 10Alytics BuildFest 2026. The demo dataset is synthetic — see
+Built by Tomola Oke - ID-BF-0260 for 10Alytics BuildFest 2026. The demo dataset is synthetic — see
 [DATASET_METHODOLOGY.md](docs/DATASET_METHODOLOGY.md).
