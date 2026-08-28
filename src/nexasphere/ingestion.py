@@ -245,11 +245,32 @@ def detect_relationships(files: list[IngestedFile]) -> list[dict[str, str]]:
 
 
 def choose_primary_frame(files: list[IngestedFile]) -> Optional[IngestedFile]:
-    """The table analytics will run on: the largest structured file by row
-    count. Chosen explicitly and shown to the user rather than merging
-    everything into one speculative frame.
+    """The table analytics will run on.
+
+    Chosen by analytical usefulness, not raw size. Picking the largest file
+    (the previous rule) meant that uploading a whole business folder selected
+    something like a daily inventory snapshot -- hundreds of thousands of rows
+    but no revenue column -- over the sales table that actually answers
+    business questions. A money column is what unlocks nearly every analysis,
+    so it dominates the score; a date column comes next because it unlocks all
+    trend and growth work. Row count only breaks ties.
+
+    The choice is always surfaced to the user, and never merges files.
     """
     candidates = data_files(files)
     if not candidates:
         return None
-    return max(candidates, key=lambda f: len(f.frame))
+
+    money_words = ("revenue", "sales", "amount", "total", "price", "profit", "cost", "turnover")
+    date_words = ("date", "time", "day", "month", "period")
+
+    def score(f: IngestedFile) -> tuple[int, int, int]:
+        cols = [str(c).lower() for c in f.frame.columns]
+        has_money = any(
+            any(w in c for w in money_words) and pd.api.types.is_numeric_dtype(f.frame[c0])
+            for c, c0 in zip(cols, f.frame.columns)
+        )
+        has_date = any(any(w in c for w in date_words) for c in cols)
+        return (int(has_money), int(has_date), len(f.frame))
+
+    return max(candidates, key=score)

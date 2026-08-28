@@ -159,15 +159,37 @@ def test_detect_relationships_ignores_non_identifier_columns():
     assert "name" not in {r["column"] for r in rels}
 
 
-def test_choose_primary_frame_picks_largest_table():
+def test_choose_primary_frame_prefers_analysable_table_over_larger_one():
+    """Regression: uploading a whole business folder used to select the file
+    with the most rows -- e.g. a 130k-row daily inventory snapshot with no
+    money column -- over the far smaller sales table that actually answers
+    business questions. A money column now outranks raw size.
+    """
     big = b"a\n" + b"\n".join(str(i).encode() for i in range(50)) + b"\n"
     files = ing.ingest_files([
-        FakeUpload("small.csv", SALES_CSV),
-        FakeUpload("big.csv", big),
+        FakeUpload("sales.csv", SALES_CSV),   # small, but has `amount`
+        FakeUpload("big.csv", big),            # larger, no money column
     ])
     primary = ing.choose_primary_frame(files)
     assert primary is not None
-    assert primary.name == "big.csv"
+    assert primary.name == "sales.csv"
+
+
+def test_choose_primary_frame_prefers_sales_over_inventory_snapshot():
+    inventory = (b"snapshot_date,store_id,product_id,opening_stock,closing_stock\n"
+                  + b"\n".join(b"2026-01-01,S1,P1,10,9" for _ in range(200)) + b"\n")
+    files = ing.ingest_files([
+        FakeUpload("inventory_daily.csv", inventory),
+        FakeUpload("sales.csv", SALES_CSV),
+    ])
+    assert ing.choose_primary_frame(files).name == "sales.csv"
+
+
+def test_choose_primary_frame_falls_back_to_size_when_tied():
+    a = b"amount\n1\n2\n"
+    b = b"amount\n" + b"\n".join(str(i).encode() for i in range(30)) + b"\n"
+    files = ing.ingest_files([FakeUpload("a.csv", a), FakeUpload("b.csv", b)])
+    assert ing.choose_primary_frame(files).name == "b.csv"
 
 
 def test_choose_primary_frame_returns_none_when_no_data_files():

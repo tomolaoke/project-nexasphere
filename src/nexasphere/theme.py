@@ -959,14 +959,21 @@ def apply_chart_defaults() -> None:
 
 def plotly_theme(fig, height: int = 320):
     p = palette()
+    # Generous top margin and a title pinned above the plot area: with the
+    # default spacing, legends and long category labels were colliding with
+    # the title. y=0.97/"top" keeps the title out of the plotting region, and
+    # the legend sits between them rather than on top of either.
     fig.update_layout(
         height=height, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Plus Jakarta Sans, sans-serif", size=12, color=p["muted"]),
-        title=dict(font=dict(size=15, color=p["ink"]), x=0, xanchor="left"),
-        margin=dict(l=8, r=8, t=46, b=8),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1,
-                     bgcolor="rgba(0,0,0,0)", font=dict(size=11)),
+        title=dict(font=dict(size=14, color=p["ink"]), x=0, xanchor="left",
+                    y=0.97, yanchor="top"),
+        margin=dict(l=10, r=14, t=74, b=48),
+        legend=dict(orientation="h", yanchor="bottom", y=1.0, xanchor="left", x=0,
+                     bgcolor="rgba(0,0,0,0)", font=dict(size=11), title_text=""),
         colorway=[p["accent"], "#3FBFB3", p["accent2"], p["warn"], p["bad"], p["ok"]],
+        uniformtext=dict(minsize=9, mode="hide"),
+        hoverlabel=dict(font_family="Plus Jakarta Sans, sans-serif"),
     )
     fig.update_xaxes(showgrid=False, showline=True, linecolor=p["border"], tickfont=dict(size=11))
     fig.update_yaxes(showgrid=True, gridcolor=p["grid"], zeroline=False, tickfont=dict(size=11))

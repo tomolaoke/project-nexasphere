@@ -128,17 +128,25 @@ def render_sidebar():
         cdf, _caps = user_frame()
         # The dataset window must describe THEIR data. Showing the demo
         # dataset's dates here would describe a different business entirely.
-        window = ud.dataset_window(cdf) if cdf is not None else None
-        if window:
+        # "Not analyzed yet" and "analyzed, but no date column" are genuinely
+        # different states and must not share one message -- conflating them
+        # made a pre-analysis workspace look like a mapping failure.
+        if cdf is None:
             st.sidebar.markdown(
-                f"**Your data window**\n\n{window[0].date()} → {window[1].date()}")
+                "**Your data window**\n\nNot analyzed yet — upload your files and "
+                "confirm the column mapping.")
         else:
-            st.sidebar.markdown(
-                "**Your data window**\n\nNo date column mapped — trend and growth "
-                "analysis is unavailable until one is.")
-        if cdf is not None:
+            window = ud.dataset_window(cdf)
+            if window:
+                st.sidebar.markdown(
+                    f"**Your data window**\n\n{window[0].date()} → {window[1].date()}")
+            else:
+                st.sidebar.markdown(
+                    "**Your data window**\n\nNo date column mapped — trend and growth "
+                    "analysis is unavailable until one is.")
             st.sidebar.markdown(f"**Records analyzed**\n\n{len(cdf):,}")
-        st.sidebar.markdown(f"**Source file**\n\n{st.session_state.get('ud_filename', '—')}")
+        if st.session_state.get("ud_filename"):
+            st.sidebar.markdown(f"**Source file**\n\n{st.session_state['ud_filename']}")
         st.sidebar.markdown("---")
         if st.sidebar.button("← Back to NexaSphere demo", use_container_width=True):
             st.session_state["nx_workspace"] = "demo"
@@ -289,27 +297,21 @@ def render_findings_tab():
 
 
 def render_ask_tab():
-    st.caption("Answers are computed by the analytics engine, then phrased by the AI narration layer.")
+    st.caption(
+        "Answers are calculated by the analytics engine first, then phrased by the AI layer. "
+        "Ask formally or casually — including Nigerian English/Pidgin — or ask "
+        "*\"What can I ask?\"* to see everything available."
+    )
 
-    with st.expander("Try a suggested question"):
-        for q in qa.SUGGESTED_QUESTIONS:
-            if st.button(q, key=f"suggest_{q}"):
-                st.session_state["question_input"] = q
+    def answer(question: str):
+        result = qa.answer_question(question)
+        caption = _source_caption(result.narration)
+        caption += f"  ·  matched intent: `{result.intent}`"
+        evidence = result.result if result.intent not in qa.DECLINED_INTENTS else None
+        return result.narration.text, caption, evidence
 
-    question = st.text_input("Your question", key="question_input", placeholder="e.g. Which marketing campaigns generate the best ROI?")
-    if st.button("Ask", type="primary") and question.strip():
-        with st.spinner("Computing verified answer..."):
-            result = qa.answer_question(question)
-        st.markdown(f"**Answer:** {result.narration.text}")
-        if result.narration.source == "template":
-            st.info("Verified analysis -- AI explanation unavailable or unverifiable right now; "
-                    "the answer above is generated directly from the analytics engine, not a model.")
-        else:
-            label = "local Ollama" if result.narration.backend == "ollama" else "free hosted Groq"
-            st.caption(f"Narration source: AI ({label} · {result.narration.model}), numerically verified")
-        st.caption(f"Matched intent: `{result.intent}`")
-        with st.expander("Underlying computed result"):
-            st.json(result.result)
+    _render_chat("demo_chat", qa.SUGGESTED_QUESTIONS, answer,
+                  "Ask about NexaSphere Retail's performance…")
 
 
 def render_dashboard_tab():
@@ -403,6 +405,13 @@ def render_analyze_my_business_tab():
             st.session_state["ud_ingested"] = ingested
             st.session_state["ud_signature"] = signature
             st.session_state["ud_confirmed"] = False
+            # Drop the previous file's mapping selections. A Streamlit widget
+            # with a key takes its value from session_state and IGNORES the
+            # index argument, so a stale selection silently overrode the fresh
+            # suggestion for the new file -- which is how a correctly detected
+            # date column ended up reported as "not mapped".
+            for k in [k for k in st.session_state if k.startswith("ud_map_")]:
+                del st.session_state[k]
 
             primary = ing.choose_primary_frame(ingested)
             if primary is not None:
@@ -678,13 +687,27 @@ def render_business_setup() -> bool:
     return False
 
 
-def _user_chart_grid(cdf, caps):
-    """Varied chart types chosen by what the dimension actually is -- a trend
-    over time reads as a line, share-of-total as a donut, rankings as bars.
-    Rendering everything as bars (the previous behaviour) hides those
-    differences and makes every question look like the same question.
+def _shorten(series, limit: int = 18):
+    """Truncates long category labels. Full-length names on a categorical axis
+    were colliding with each other and with the chart title.
     """
-    figs = []
+    return series.astype(str).str.slice(0, limit) + series.astype(str).str.len().gt(limit).map(
+        {True: "…", False: ""})
+
+
+def _user_chart_grid(cdf, caps):
+    """Chart type is chosen by the shape of the question, not by habit.
+
+    A trend over time reads as an area/line; share-of-a-whole as a donut;
+    ranking as horizontal bars; a nested breakdown as a treemap; spread and
+    outliers as a box plot; the distribution of a measure as a histogram;
+    and a two-measure trade-off (revenue vs. margin) as a scatter, which no
+    ranked bar chart can express. Rendering everything as bars flattens all
+    those distinctions into one shape.
+    """
+    figs: list[tuple[str, object]] = []
+
+    # ---- Time ----
     trend = ud.revenue_trend(cdf)
     if not trend.empty:
         y = [c for c in ("revenue", "profit") if c in trend.columns]
@@ -696,46 +719,88 @@ def _user_chart_grid(cdf, caps):
         if "profit" in trend.columns and len(trend) > 1:
             m = trend.copy()
             m["margin_pct"] = (m["profit"] / m["revenue"].replace(0, pd.NA) * 100).round(2)
-            f2 = px.line(m, x="period", y="margin_pct", markers=True,
-                          title="Margin % over time", labels={"margin_pct": "", "period": ""})
-            figs.append(("half", f2))
+            f = px.line(m, x="period", y="margin_pct", markers=True, title="Margin % over time",
+                         labels={"margin_pct": "", "period": ""})
+            figs.append(("half", f))
 
+        if len(trend) > 2:
+            g = trend.copy()
+            g["change_pct"] = (g["revenue"].pct_change() * 100).round(1)
+            g = g.dropna(subset=["change_pct"])
+            if not g.empty:
+                f = px.bar(g, x="period", y="change_pct", title="Period-on-period revenue change %",
+                            labels={"change_pct": "", "period": ""})
+                figs.append(("half", f))
+
+    # ---- Ranking ----
     for dim, title in (("product", "Top products by revenue"),
                         ("customer", "Top customers by revenue"),
-                        ("employee", "Revenue by employee")):
+                        ("employee", "Revenue by employee"),
+                        ("campaign", "Revenue by campaign")):
         if dim in cdf.columns:
             d = ud.breakdown_by(cdf, dim, top_n=10)
             if not d.empty:
-                f = px.bar(d, x="revenue", y=dim, orientation="h", title=title,
-                            labels={"revenue": "", dim: ""})
+                d = d.copy()
+                d["_label"] = _shorten(d[dim])
+                f = px.bar(d, x="revenue", y="_label", orientation="h", title=title,
+                            labels={"revenue": "", "_label": ""}, hover_name=dim)
                 f.update_layout(yaxis=dict(autorange="reversed"))
                 figs.append(("half", f))
 
+    # ---- Share of whole ----
     for dim, title in (("category", "Revenue share by category"),
-                        ("region", "Revenue share by region"),
-                        ("store", "Revenue share by store")):
+                        ("region", "Revenue share by region")):
         if dim in cdf.columns:
             d = ud.breakdown_by(cdf, dim, top_n=8)
             if not d.empty:
                 f = px.pie(d, names=dim, values="revenue", title=title, hole=.55)
-                f.update_traces(textposition="inside", textinfo="percent")
+                f.update_traces(textposition="inside", textinfo="percent",
+                                 insidetextorientation="horizontal")
                 figs.append(("half", f))
 
-    if "campaign" in cdf.columns:
-        d = ud.breakdown_by(cdf, "campaign", top_n=10)
-        if not d.empty:
-            f = px.bar(d, x="campaign", y="revenue", title="Revenue by campaign",
-                        labels={"revenue": "", "campaign": ""})
+    # ---- Nested composition ----
+    if "category" in cdf.columns and "product" in cdf.columns:
+        d = cdf.dropna(subset=["category", "product"]).groupby(
+            ["category", "product"], dropna=False)["revenue"].sum().reset_index()
+        if not d.empty and len(d) > 1:
+            f = px.treemap(d, path=["category", "product"], values="revenue",
+                            title="Revenue composition: category → product")
             figs.append(("half", f))
 
-    # Margin vs revenue scatter: shows high-revenue/low-margin lines, which a
-    # ranked bar chart cannot reveal.
+    # ---- Spread / outliers ----
+    if "store" in cdf.columns:
+        d = ud.breakdown_by(cdf, "store", top_n=12)
+        if not d.empty:
+            d = d.copy()
+            d["_label"] = _shorten(d["store"], 14)
+            f = px.bar(d, x="_label", y="revenue", title="Revenue by store",
+                        labels={"revenue": "", "_label": ""}, hover_name="store")
+            f.update_layout(xaxis=dict(tickangle=-35))
+            figs.append(("half", f))
+
+    if "product" in cdf.columns and cdf["product"].nunique() > 2:
+        top = ud.breakdown_by(cdf, "product", top_n=6)["product"].tolist()
+        d = cdf[cdf["product"].isin(top)].copy()
+        if not d.empty:
+            d["_label"] = _shorten(d["product"], 14)
+            f = px.box(d, x="_label", y="revenue", title="Order-value spread by product",
+                        labels={"revenue": "", "_label": ""}, points=False)
+            f.update_layout(xaxis=dict(tickangle=-35))
+            figs.append(("half", f))
+
+    # ---- Distribution ----
+    f = px.histogram(cdf, x="revenue", nbins=30, title="Distribution of transaction values",
+                      labels={"revenue": "", "count": ""})
+    figs.append(("half", f))
+
+    # ---- Trade-off ----
     if "profit" in cdf.columns and "product" in cdf.columns:
         d = ud.breakdown_by(cdf, "product", top_n=40)
         if not d.empty and "margin_pct" in d.columns:
-            f = px.scatter(d, x="revenue", y="margin_pct", size="revenue",
+            f = px.scatter(d, x="revenue", y="margin_pct", size="revenue", color="margin_pct",
                             hover_name="product", title="Revenue vs. margin by product",
                             labels={"revenue": "Revenue", "margin_pct": "Margin %"})
+            f.update_layout(coloraxis_showscale=False)
             figs.append(("half", f))
 
     if not figs:
@@ -745,15 +810,15 @@ def _user_chart_grid(cdf, caps):
     pending = []
     for width, fig in figs:
         if width == "full":
-            st.plotly_chart(theme.plotly_theme(fig, 320), use_container_width=True)
+            st.plotly_chart(theme.plotly_theme(fig, 330), use_container_width=True)
         else:
             pending.append(fig)
             if len(pending) == 2:
                 for col, f in zip(st.columns(2), pending):
-                    col.plotly_chart(theme.plotly_theme(f, 300), use_container_width=True)
+                    col.plotly_chart(theme.plotly_theme(f, 320), use_container_width=True)
                 pending = []
     if pending:
-        st.plotly_chart(theme.plotly_theme(pending[0], 300), use_container_width=True)
+        st.plotly_chart(theme.plotly_theme(pending[0], 320), use_container_width=True)
 
 
 def render_user_overview(cdf, caps):
@@ -813,34 +878,82 @@ def render_user_findings(cdf, caps):
                 st.json(f.evidence)
 
 
+def _source_caption(narration) -> str:
+    if narration.source == "template":
+        return ("Verified analysis — computed directly from the data. "
+                "AI rephrasing unavailable or unverifiable right now.")
+    label = "local Ollama" if narration.backend == "ollama" else "free hosted Groq"
+    return f"AI ({label} · {narration.model}) — numerically verified against the evidence"
+
+
+def _render_chat(history_key: str, suggestions: list[str], answer_fn, placeholder: str):
+    """Shared chat surface for both workspaces.
+
+    Turns are replayed from session history so the conversation persists across
+    Streamlit reruns; only the newest answer streams, because replaying the
+    animation on every rerun would be noise rather than feedback.
+    """
+    history = st.session_state.setdefault(history_key, [])
+
+    if suggestions and not history:
+        st.caption("Try one of these, or type your own question:")
+        cols = st.columns(2)
+        for i, s in enumerate(suggestions[:4]):
+            if cols[i % 2].button(s, key=f"{history_key}_sug_{i}", use_container_width=True):
+                st.session_state[f"{history_key}_pending"] = s
+                st.rerun()
+
+    for turn in history:
+        with st.chat_message("user", avatar="🧑‍💼"):
+            st.markdown(turn["question"])
+        with st.chat_message("assistant", avatar="📊"):
+            st.markdown(turn["answer"])
+            if turn.get("caption"):
+                st.caption(turn["caption"])
+            if turn.get("evidence"):
+                with st.expander("Evidence — the computed values behind this answer"):
+                    st.json(turn["evidence"])
+
+    question = st.chat_input(placeholder) or st.session_state.pop(f"{history_key}_pending", None)
+    if not question:
+        return
+
+    with st.chat_message("user", avatar="🧑‍💼"):
+        st.markdown(question)
+
+    with st.chat_message("assistant", avatar="📊"):
+        with st.spinner("Computing a verified answer…"):
+            answer_text, caption, evidence = answer_fn(question)
+        st.write_stream(nlg.stream_text(answer_text))
+        if caption:
+            st.caption(caption)
+        if evidence:
+            with st.expander("Evidence — the computed values behind this answer"):
+                st.json(evidence)
+
+    history.append({"question": question, "answer": answer_text,
+                     "caption": caption, "evidence": evidence})
+    st.rerun()
+
+
 def render_user_ask(cdf, caps):
     st.caption(
         "Ask in plain language — formal or casual, including Nigerian English/Pidgin. "
         "Not sure what's possible? Ask *\"What can I ask?\"* and NexaSphere answers from "
         "the columns it detected in your files."
     )
-    suggestions = [ex for label, ok in caps.items() if ok
-                    for ex in ud._CAPABILITY_QUESTIONS.get(label, [])][:6]
-    if suggestions:
-        with st.expander("Suggested questions for your data"):
-            for s in suggestions:
-                st.markdown(f"- {s}")
 
-    question = st.text_input("Your question", key="ud_question",
-                              placeholder="e.g. Which product generates the most revenue?")
-    if st.button("Ask", key="ud_ask_btn", type="primary") and question.strip():
+    def answer(question: str):
         result = ud.answer_user_question(question, cdf, caps)
-        if result.supported:
-            narration = nlg.narrate_answer(question, result.result, result.template_answer)
-            st.markdown(f"**Answer:** {narration.text}")
-            if narration.source != "template":
-                label = "local Ollama" if narration.backend == "ollama" else "free hosted Groq"
-                st.caption(f"Narration source: AI ({label} · {narration.model}), numerically verified")
-            if result.result:
-                with st.expander("Underlying computed result"):
-                    st.json(result.result)
-        else:
-            st.warning(result.template_answer)
+        if not result.supported:
+            return result.template_answer, None, None
+        narration = nlg.narrate_answer(question, result.result, result.template_answer)
+        return narration.text, _source_caption(narration), (result.result or None)
+
+    suggestions = [ex for label, ok in caps.items() if ok
+                    for ex in ud._CAPABILITY_QUESTIONS.get(label, [])]
+    _render_chat("ud_chat", suggestions, answer,
+                  "Ask about your business data…")
 
 
 def render_user_capabilities(cdf, caps):

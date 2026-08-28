@@ -282,6 +282,20 @@ def _call_groq(system_prompt: str, user_prompt: str) -> str | None:
         return None
 
 
+def stream_text(text: str, delay: float = 0.012):
+    """Reveals already-verified text word by word, for a chat-style UI.
+
+    Deliberately streams VERIFIED output rather than raw model tokens.
+    Streaming a model live would put numbers on screen before the grounding
+    guardrail has checked them, and an ungrounded figure that has been read has
+    already misinformed the reader even if it is retracted a moment later. So
+    narration is generated and validated in full first, then revealed.
+    """
+    for i, word in enumerate(text.split(" ")):
+        yield (" " if i else "") + word
+        time.sleep(delay)
+
+
 def _generate(system_prompt: str, user_prompt: str) -> tuple[str, str, str] | None:
     """Tries each configured backend in order and returns the first
     successful (text, backend_name, model_name), or None if none produced
