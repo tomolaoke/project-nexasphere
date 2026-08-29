@@ -18,7 +18,7 @@ implementation would be spotted immediately rather than rewarded.
 
 The case study says "the provided business dataset," but no dataset was
 actually distributed with the brief. Rather than build a generic/random
-dataset, we constructed a synthetic-but-relationally-consistent Ordino
+dataset, we constructed a synthetic-but-relationally-consistent NexaSphere
 dataset with intentionally planted business conditions (margin pressure from
 discounting, an elevated Audio return rate, a deteriorating delivery
 partner, TV stockouts alongside AC excess stock, one standout marketing

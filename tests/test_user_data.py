@@ -1,9 +1,9 @@
 """Tests for the generic "Analyze My Business" dataset adapter
-(nexasphere.user_data): CSV loading, profiling, column-mapping suggestions,
+(ordino.user_data): CSV loading, profiling, column-mapping suggestions,
 capability detection, generic analytics, and capability-aware Q&A.
 
 These intentionally use small synthetic CSVs with schemas that do NOT match
-the NexaSphere demo dataset, to prove the adapter is genuinely generic and
+the Ordino demo dataset, to prove the adapter is genuinely generic and
 not secretly coupled to the competition schema.
 """
 from __future__ import annotations
@@ -18,8 +18,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from nexasphere import user_data as ud  # noqa: E402
-from nexasphere.nlg import _numbers_are_grounded  # noqa: E402
+from ordino import user_data as ud  # noqa: E402
+from ordino.nlg import _numbers_are_grounded  # noqa: E402
 
 
 def _csv_file(text: str):

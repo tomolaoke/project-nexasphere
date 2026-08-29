@@ -36,7 +36,7 @@ the CSV is small enough to be the safer source of truth to hand-edit.
 
 ## hubs.csv (4 rows) -- loaded, not yet analyzed
 
-`hub_id`, `hub_name`, `region`. Represents NexaSphere's fulfilment hubs.
+`hub_id`, `hub_name`, `region`. Represents Ordino's fulfilment hubs.
 **Honest status**: the loader (`data_loader.load_hubs`) exists but no
 analytics function currently uses it -- there is no per-hub fulfilment
 performance metric in this prototype. Flagged as a known gap, not hidden.

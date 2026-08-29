@@ -44,12 +44,12 @@ was chosen — all free/open-source, $0 total cost.
 - **Why:** Standard, fast, and lets the ground-truth validation run as part
   of normal CI rather than a manual spreadsheet comparison.
 
-## Dataset: synthetic Ordino retail data (self-generated)
+## Dataset: synthetic NexaSphere retail data (self-generated)
 
 - **What:** 13 relationally-consistent CSVs (`sales`, `products`, `stores`,
   `customers`, `employees`, `returns`, `deliveries`, `delivery_partners`,
   `marketing`, `campaigns`, `inventory_daily`, `targets`, `hubs`) plus a data
-  dictionary, built to match the Ordino scenario in the case study since
+  dictionary, built to match the NexaSphere scenario in the case study since
   no dataset was distributed with the brief.
 - **Why:** Needed a dataset that actually contains the business signals the
   case study's "Suggested Business Questions" require (margin pressure,

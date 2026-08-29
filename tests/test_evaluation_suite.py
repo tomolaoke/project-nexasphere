@@ -13,7 +13,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from nexasphere import qa  # noqa: E402
+from ordino import qa  # noqa: E402
 from eval_cases import EVAL_CASES  # noqa: E402
 
 

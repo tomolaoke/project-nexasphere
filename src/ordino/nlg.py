@@ -314,7 +314,7 @@ def _generate(system_prompt: str, user_prompt: str) -> tuple[str, str, str] | No
 
 
 _SYSTEM_PROMPT = (
-    "You are a business intelligence narrator for the NexaSphere retail analytics "
+    "You are a business intelligence narrator for the Ordino retail analytics "
     "assistant. You will be given a JSON evidence block that was computed by a "
     "deterministic analytics engine, and a deterministic template sentence built "
     "from that evidence. Rewrite the template sentence(s) in clearer, more natural "
@@ -334,7 +334,7 @@ _SYSTEM_PROMPT = (
 
 
 def narrate_finding(finding) -> NarrationResult:
-    """finding: nexasphere.insights.Finding"""
+    """finding: ordino.insights.Finding"""
     template_text = f"{finding.summary} Recommended focus: {finding.recommendation}"
 
     user_prompt = (
@@ -354,7 +354,7 @@ def narrate_finding(finding) -> NarrationResult:
 
 _QA_SYSTEM_PROMPT = (
     "You are a business intelligence assistant answering a manager's question about "
-    "the NexaSphere retail business. You will be given the exact analytical result "
+    "the Ordino retail business. You will be given the exact analytical result "
     "already computed for their question (as JSON) and a deterministic template "
     "answer. Rephrase the template answer more naturally. "
     "STRICT RULES: never introduce a number, date, or name that is not present in "

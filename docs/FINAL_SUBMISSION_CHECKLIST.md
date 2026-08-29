@@ -8,7 +8,7 @@
 |---|---|---|
 | Load/connect to the provided dataset | ✅ | `data_loader.py` — 12 CSVs, cached |
 | Display important KPIs | ✅ | Overview — revenue, profit, margin, orders, with change + sparklines |
-| Allow users to ask questions | ✅ | Ask NexaSphere — streaming chat |
+| Allow users to ask questions | ✅ | Ask Ordino — streaming chat |
 | Generate accurate natural-language answers | ✅ | `qa.py` → `nlg.py`, grounded |
 | Present relevant visual insights | ✅ | Dashboards — 9 charts, multiple types |
 | Identify at least three findings | ✅ | Six ranked findings |
@@ -69,15 +69,15 @@
 ## Submission README template
 
 ```
-Project:        NexaSphere — AI Business Intelligence Assistant
+Project:        Ordino — AI Business Intelligence Assistant
 Track:          AI for Business & Productivity
 Case Study:     Case Study 4 — AI Business Intelligence Assistant
 Participant:    Tomola Oke
 Participant ID: BF-0260
 Email:          <your registered email>
 
-Live Demo:      https://<your-app>.streamlit.app
-Repository:     https://github.com/<user>/nexasphere
+Live Demo:      https://ordino.streamlit.app
+Repository:     https://github.com/<user>/ordino
 Demo Video:     <Drive link>
 Presentation:   <Drive link>
 

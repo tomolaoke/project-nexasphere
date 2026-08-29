@@ -67,7 +67,7 @@ EVAL_CASES = [
     # ---- Unsupported (5): genuinely out of scope, must fall back honestly ----
     ("What is the meaning of life?", "unsupported", "unsupported", None),
     ("What's the weather like today?", "unsupported", "unsupported", None),
-    ("Can you write me a poem about NexaSphere?", "unsupported", "unsupported", None),
+    ("Can you write me a poem about Ordino?", "unsupported", "unsupported", None),
     ("What is our stock price?", "unsupported", "unsupported", None),
     ("Can you fetch today's news headlines?", "unsupported", "unsupported", None),
 ]

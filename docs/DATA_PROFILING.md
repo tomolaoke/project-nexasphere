@@ -1,6 +1,6 @@
 # Data Profiling and Semantic Mapping
 
-Implementation: [`user_data.py`](../src/nexasphere/user_data.py).
+Implementation: [`user_data.py`](../src/ordino/user_data.py).
 
 ## Column profile
 

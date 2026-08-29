@@ -1,4 +1,4 @@
-# NexaSphere — AI Business Intelligence Assistant
+# Ordino — AI Business Intelligence Assistant
 
 **Turn business data into decisions.**
 
@@ -18,7 +18,7 @@ spreadsheets by hand.
 
 ## The solution
 
-NexaSphere answers business questions in plain language, **but never lets an
+Ordino answers business questions in plain language, **but never lets an
 AI model produce the numbers**:
 
 ```
@@ -43,14 +43,14 @@ working — the numbers are identical either way.
 
 | Workspace | Purpose |
 |---|---|
-| **NexaSphere Demo** | The BuildFest retail dataset and its hero story. Always available, never overwritten. |
-| **Analyze My Business** | Any business uploads their own files; NexaSphere profiles them, reports what they *can* answer, and runs the same pipeline. |
+| **NexaSphere Retail (Demo)** | The BuildFest retail dataset and its hero story. Always available, never overwritten. |
+| **Analyze My Business** | Any business uploads their own files; Ordino profiles them, reports what they *can* answer, and runs the same pipeline. |
 
 ## Features
 
 - **KPIs** — revenue, gross profit, margin, orders, with period-on-period change and real sparklines
 - **Findings** — six ranked findings with severity, confidence, possible drivers (never stated as causes), evidence and a recommendation
-- **Ask NexaSphere** — streaming chat; formal English, casual English, or Nigerian Pidgin
+- **Ask Ordino** — streaming chat; formal English, casual English, or Nigerian Pidgin
 - **Dashboards** — revenue/profit trend, category, region, returns, delivery, employee, segment, campaign ROI, target attainment
 - **Analyze My Business** — multi-file upload (CSV/TSV/XLSX/JSON as data; PDF/DOCX/TXT/MD as context), profiling, data-quality score, type-filtered column mapping, capability matrix, and a dashboard generated from *their* columns
 - **Light and dark themes**
@@ -139,9 +139,9 @@ tests, ingestion, profiling and column mapping. See
 ## Repository layout
 
 ```
-Project-NexaSphere/
+Project-Ordino/
 ├── app.py                     Streamlit application
-├── src/nexasphere/
+├── src/ordino/
 │   ├── data_loader.py         Cached CSV loading (demo dataset)
 │   ├── analytics.py           Deterministic analytics engine
 │   ├── insights.py            Findings + evidence model

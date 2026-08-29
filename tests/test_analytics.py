@@ -17,9 +17,9 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from nexasphere import analytics as an  # noqa: E402
-from nexasphere import insights as ins  # noqa: E402
-from nexasphere import qa  # noqa: E402
+from ordino import analytics as an  # noqa: E402
+from ordino import insights as ins  # noqa: E402
+from ordino import qa  # noqa: E402
 
 GROUND_TRUTH_PATH = ROOT / "internal_validation" / "GROUND_TRUTH_INTERNAL.json"
 
@@ -44,7 +44,7 @@ def test_kpi_matches_manual_calculation():
     """Sanity check the calculation logic against a hand-computed subtotal
     for a narrow, easy-to-verify window (first day of data).
     """
-    from nexasphere import data_loader as dl
+    from ordino import data_loader as dl
 
     sales = dl.load_sales()
     first_day = sales["order_date"].min()
@@ -133,7 +133,7 @@ def test_every_finding_summary_number_is_grounded_in_evidence():
     every numeric value quoted in a Finding's summary must be traceable to
     a value present in its own evidence payload.
     """
-    from nexasphere.nlg import _numbers_are_grounded
+    from ordino.nlg import _numbers_are_grounded
 
     for f in ins.generate_findings():
         assert _numbers_are_grounded(f.summary, f.evidence), f"Ungrounded number in: {f.summary}"
@@ -219,7 +219,7 @@ def test_pidgin_growth_questions_route_to_profitability(question):
 # ---------------------------------------------------------------------------
 
 def test_grounding_rejects_a_fabricated_percentage():
-    from nexasphere.nlg import _numbers_are_grounded
+    from ordino.nlg import _numbers_are_grounded
 
     evidence = {"revenue_pct": 63.2, "gross_profit_pct": 53.8, "margin_pp": -1.45}
     fabricated = "Revenue grew 72% while profit grew 53.8%, a margin move of -1.45pp."
@@ -227,7 +227,7 @@ def test_grounding_rejects_a_fabricated_percentage():
 
 
 def test_grounding_rejects_a_fabricated_currency_value():
-    from nexasphere.nlg import _numbers_are_grounded
+    from ordino.nlg import _numbers_are_grounded
 
     evidence = {"spend": 38000, "attributed_revenue": 255000, "roi": 5.71}
     fabricated = "Summer Cooling spent 38,000.00 to generate 400,000.00 in revenue."
@@ -235,7 +235,7 @@ def test_grounding_rejects_a_fabricated_currency_value():
 
 
 def test_grounding_accepts_correct_restated_numbers():
-    from nexasphere.nlg import _numbers_are_grounded
+    from ordino.nlg import _numbers_are_grounded
 
     evidence = {"revenue_pct": 63.2, "gross_profit_pct": 53.8}
     correct = "Revenue grew 63.2% while gross profit grew 53.8%."
@@ -249,7 +249,7 @@ def test_entity_grounding_rejects_wrong_partner_name():
     documented limitation -- see docs/ai-architecture.md -- exercised here
     so the gap is visible in test output rather than silently assumed away.
     """
-    from nexasphere.nlg import _entities_are_grounded
+    from ordino.nlg import _entities_are_grounded
 
     evidence = {"by_partner": [
         {"partner_name": "UrbanMove", "delayed_rate_pct": 34.0},

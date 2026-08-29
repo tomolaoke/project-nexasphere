@@ -1,4 +1,4 @@
-"""Tests for multi-file, multi-format ingestion (nexasphere.ingestion).
+"""Tests for multi-file, multi-format ingestion (ordino.ingestion).
 
 The central behaviours under test are honesty behaviours: unreadable or
 unsupported files must be declined with an explanation, documents must be
@@ -18,7 +18,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from nexasphere import ingestion as ing  # noqa: E402
+from ordino import ingestion as ing  # noqa: E402
 
 
 class FakeUpload:

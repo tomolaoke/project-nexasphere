@@ -2,7 +2,7 @@
 
 Every function here returns plain Python / pandas structures computed with
 ordinary arithmetic and pandas aggregation. No LLM call happens in this
-module. This is deliberate: the AI layer (nexasphere.nlg) is only ever
+module. This is deliberate: the AI layer (ordino.nlg) is only ever
 allowed to *narrate* the numbers this module produces, never invent them.
 """
 from __future__ import annotations

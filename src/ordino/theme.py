@@ -1,4 +1,4 @@
-"""NexaSphere design system, landing page and dashboard chrome.
+"""Ordino design system, landing page and dashboard chrome.
 
 Implementation note: Streamlit's DOM-order layout constraint applies to its
 *interactive widgets*. Content rendered through `st.markdown(...,
@@ -692,7 +692,7 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
     """Returns 'demo', 'upload', or None."""
     _html(f"""
     <div class="nx-nav">
-      <a class="nx-brand" href="#nx-top"><div class="nx-logo">N</div> NexaSphere</a>
+      <a class="nx-brand" href="#nx-top"><div class="nx-logo">O</div> Ordino</a>
       <div class="nx-navlinks">
         <a href="#nx-product">Product</a>
         <a href="#nx-how">How it works</a>
@@ -705,7 +705,7 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
       <div>
         <div class="nx-eyebrow"><span class="nx-dot"></span> Evidence-backed business intelligence</div>
         <h1>Turn business data<br/>into decisions.</h1>
-        <p class="nx-lede">Upload the files you already use. NexaSphere works out what your data can
+        <p class="nx-lede">Upload the files you already use. Ordino works out what your data can
         reliably answer, calculates the numbers itself, and explains what they mean in plain
         language &mdash; without letting AI invent a single figure.</p>
       </div>
@@ -745,7 +745,7 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
     <div id="nx-product" class="nx-sectionhead">
       <div class="nx-tag">Why it's different</div>
       <h2>See. Explain. Act. Trust.</h2>
-      <p>Traditional dashboards tell you what happened. NexaSphere helps you understand why it
+      <p>Traditional dashboards tell you what happened. Ordino helps you understand why it
          matters and what to investigate next.</p>
     </div>
     <div class="nx-grid">
@@ -783,7 +783,7 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
     <div id="nx-trust" class="nx-dark">
       <h2>AI explains the numbers. It doesn't make them up.</h2>
       <p>Most "chat with your data" tools let a language model read your spreadsheet and produce
-         figures. NexaSphere doesn't. Calculations run first, in pandas. The AI receives only the
+         figures. Ordino doesn't. Calculations run first, in pandas. The AI receives only the
          verified result, and any sentence containing a number that isn't in that evidence is
          rejected before you ever see it.</p>
       <div class="nx-pipe">
@@ -798,8 +798,8 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
 
     _html(f"""
     <div id="nx-value" class="nx-sectionhead">
-      <div class="nx-tag">Capabilities</div><h2>What NexaSphere can analyse</h2>
-      <p>Availability depends on what your uploaded data actually contains &mdash; NexaSphere tells
+      <div class="nx-tag">Capabilities</div><h2>What Ordino can analyse</h2>
+      <p>Availability depends on what your uploaded data actually contains &mdash; Ordino tells
          you which of these it supports, and which it can't.</p>
     </div>
     <div class="nx-grid">
@@ -826,9 +826,9 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
       <div class="nx-trust"><div class="nx-ck">✓</div><div><b>Session-scoped.</b>
         <span>Uploads are analysed in your session and are not permanently stored.</span></div></div>
       <div class="nx-trust"><div class="nx-ck">✓</div><div><b>Honest limits.</b>
-        <span>If your data can't answer something, NexaSphere says so instead of inventing an answer.</span></div></div>
+        <span>If your data can't answer something, Ordino says so instead of inventing an answer.</span></div></div>
       <div class="nx-trust"><div class="nx-ck">✓</div><div><b>You decide.</b>
-        <span>NexaSphere surfaces what to investigate. It never acts on your business by itself.</span></div></div>
+        <span>Ordino surfaces what to investigate. It never acts on your business by itself.</span></div></div>
     </div>
     """)
 
@@ -844,7 +844,7 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
     dm2 = c4.button("Explore Demo", key="cta2_demo", use_container_width=True)
 
     _html("""
-    <div class="nx-foot"><b style="color:var(--nx-ink);">NexaSphere</b> &middot;
+    <div class="nx-foot"><b style="color:var(--nx-ink);">Ordino</b> &middot;
       AI Business Intelligence Assistant &middot; BuildFest 2026<br/>
       The data calculates. The AI explains. The evidence builds trust. The human decides.</div>
     """)
@@ -860,7 +860,7 @@ def render_landing(kpi_preview: dict | None = None) -> str | None:
 # Dashboard chrome
 # ---------------------------------------------------------------------------
 
-NAV_PAGES = ["Overview", "Findings", "Ask NexaSphere", "Dashboards", "Analyze My Business"]
+NAV_PAGES = ["Overview", "Findings", "Ask Ordino", "Dashboards", "Analyze My Business"]
 
 
 def app_shell(workspace: str) -> tuple[str, bool]:
@@ -875,8 +875,8 @@ def app_shell(workspace: str) -> tuple[str, bool]:
     with mid:
         _html(f"""
         <div style="display:flex;align-items:center;gap:.7rem;height:100%;padding-top:.15rem;">
-          <div class="nx-logo">N</div>
-          <div><div style="font-weight:800;font-size:1.02rem;color:var(--nx-ink);line-height:1.15;">NexaSphere</div>
+          <div class="nx-logo">O</div>
+          <div><div style="font-weight:800;font-size:1.02rem;color:var(--nx-ink);line-height:1.15;">Ordino</div>
           <div style="font-size:.74rem;color:var(--nx-muted);">Workspace &middot; {workspace}</div></div>
         </div>
         """)
@@ -940,7 +940,7 @@ def chart_colors() -> list[str]:
 
 
 def apply_chart_defaults() -> None:
-    """Sets Plotly Express' default sequences to the NexaSphere palette.
+    """Sets Plotly Express' default sequences to the Ordino palette.
 
     plotly_theme's `layout.colorway` alone is not enough: px assigns each
     trace an explicit colour at creation time from its own default sequence,

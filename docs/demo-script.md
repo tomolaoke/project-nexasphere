@@ -20,7 +20,7 @@ rehearsed. Show the product working — not the code.
 
 ### 0:20–0:40 · What it is
 
-> "NexaSphere turns business data into decisions. It calculates the numbers
+> "Ordino turns business data into decisions. It calculates the numbers
 > itself, then uses AI to explain what they mean — and it never lets the AI
 > invent a figure."
 
@@ -31,7 +31,7 @@ warning, revenue-vs-profit chart.*
 
 ### 0:40–1:20 · The hero question
 
-*Go to **Ask NexaSphere**. Type live:*
+*Go to **Ask Ordino**. Type live:*
 
 > "Is revenue growth leading to stronger profitability?"
 
@@ -75,7 +75,7 @@ warning, revenue-vs-profit chart.*
 *Click **Analyze My Business**. Enter a business name and industry. Upload a CSV
 with completely different column names.*
 
-> "Different schema entirely. NexaSphere profiles it, proposes what each column
+> "Different schema entirely. Ordino profiles it, proposes what each column
 > means — and I confirm, it doesn't assume."
 
 *Click **Confirm & Analyze**.*
@@ -104,7 +104,7 @@ with completely different column names.*
 
 ### 2:45–3:00 · Close
 
-> "Traditional dashboards tell you what happened. NexaSphere tells you why it
+> "Traditional dashboards tell you what happened. Ordino tells you why it
 > matters and what to investigate next — without letting AI invent the numbers.
 > Runs on entirely free, open-source tooling. Zero cost."
 

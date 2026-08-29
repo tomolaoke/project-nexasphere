@@ -8,7 +8,7 @@ non-technical decision-maker can act on. Analytics answers *what*; the AI
 answers *why it matters and what to check next*.
 
 **Why not just use Power BI or Tableau?**
-Those tell you *what happened* — you still interpret it. NexaSphere ranks what
+Those tell you *what happened* — you still interpret it. Ordino ranks what
 deserves attention, explains it in plain language, cites the evidence, and
 recommends what to investigate. It also answers questions typed in your own
 words, including Pidgin.
@@ -32,7 +32,7 @@ Yes — multiple files at once. CSV, TSV, XLSX and JSON are analysed; PDF, DOCX,
 TXT and MD are read as business context but never counted as measurements.
 
 **What if my data doesn't have a required field?**
-NexaSphere tells you. The capability matrix reports which of nine analyses your
+Ordino tells you. The capability matrix reports which of nine analyses your
 data supports and names the missing columns for the rest. Ask an unsupported
 question and it declines and explains what would be needed — it does not
 approximate.

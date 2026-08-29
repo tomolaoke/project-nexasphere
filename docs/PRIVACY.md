@@ -2,7 +2,7 @@
 
 ## What happens to an uploaded file
 
-1. It is read **in memory** by `nexasphere.ingestion` (pandas / openpyxl / pypdf / python-docx).
+1. It is read **in memory** by `ordino.ingestion` (pandas / openpyxl / pypdf / python-docx).
 2. It is held in **Streamlit session state** — scoped to one browser session.
 3. Deterministic analytics compute aggregates from it.
 4. **Only those aggregates** are passed to the AI narration layer.
@@ -41,7 +41,7 @@ The active backend is always shown in the sidebar.
 ## Guidance to users
 
 > Only upload business data you are authorised to analyse. Avoid uploading
-> unnecessary personal or confidential information — NexaSphere does not need
+> unnecessary personal or confidential information — Ordino does not need
 > names, contact details or payment data to analyse business performance.
 
 This notice is shown in-app on the upload screen.

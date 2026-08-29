@@ -14,18 +14,18 @@ against an independently pre-computed ground-truth file.
 
 ## What to look at, in order of what proves the most
 
-1. **[src/nexasphere/nlg.py](src/nexasphere/nlg.py)** — the numeric-grounding
+1. **[src/ordino/nlg.py](src/ordino/nlg.py)** — the numeric-grounding
    guardrail (`_numbers_are_grounded`). This is the mechanism that makes "no
    hallucinated numbers" an enforced property of the code, not a claim in a
    README.
 2. **[tests/test_analytics.py](tests/test_analytics.py)** — specifically
    `test_every_finding_summary_number_is_grounded_in_evidence` and the
    ground-truth comparison tests. Run it yourself: `pytest tests/ -v`.
-3. **[src/nexasphere/insights.py](src/nexasphere/insights.py)** — see how a
+3. **[src/ordino/insights.py](src/ordino/insights.py)** — see how a
    `Finding` always carries its own `evidence` dict alongside its `summary`
    text; this is what the UI's evidence panels and the grounding check both
    read from.
-4. **[src/nexasphere/qa.py](src/nexasphere/qa.py)** — the intent router
+4. **[src/ordino/qa.py](src/ordino/qa.py)** — the intent router
    covering all nine business questions the case study requires.
 5. **[app.py](app.py)** — three tabs, ~200 lines, no business logic lives
    here; it only calls into `analytics`/`insights`/`qa`/`nlg` and renders

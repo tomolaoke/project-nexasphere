@@ -23,7 +23,7 @@ repository — not an assumed one.
   (emoji are used for severity: 🔴🟠🟢).
 
 There is exactly one dataset: the 12 CSVs in `/data`, loaded once via
-`nexasphere.data_loader` and cached with `functools.lru_cache`. There is no
+`ordino.data_loader` and cached with `functools.lru_cache`. There is no
 upload path, no session-scoped alternate dataset, no concept of "my
 business" vs. "demo".
 
@@ -37,18 +37,18 @@ competition differentiator — the redesign must wrap it, not replace it:
   operates on any `(generated_text, evidence_dict)` pair. This is the single
   most reusable piece of the whole system for the "Analyze My Business"
   feature: it needs zero changes to narrate evidence computed from a
-  user-uploaded CSV instead of the NexaSphere CSVs.
+  user-uploaded CSV instead of the Ordino CSVs.
 - **`insights.Finding`** — a generic dataclass (id/title/category/severity/
   summary/evidence/recommendation/confidence). The *shape* is reusable; the
   six `finding_*` functions in `insights.py` are not — every one of them
-  calls a specific `analytics.py` function that assumes the NexaSphere
+  calls a specific `analytics.py` function that assumes the Ordino
   schema (e.g. `delivery_partner_performance()` assumes columns
   `delivery_partner_id`, `delivery_status`, `delivery_rating`,
   `promised_days`, `actual_days` exist). None of this generalizes to an
   arbitrary CSV without a mapping layer in between.
 - **`qa.py`'s router pattern** (keyword → intent → deterministic function →
   `nlg.narrate_answer`) — the *pattern* is reusable; the nine intents
-  themselves are hardcoded to NexaSphere's dimensions/columns.
+  themselves are hardcoded to Ordino's dimensions/columns.
 - **The three-backend narration chain** (Ollama → Groq → template, just
   added) — already dataset-agnostic, no changes needed for user data.
 - **The full test suite (88 tests)** and the ground-truth validation
@@ -56,7 +56,7 @@ competition differentiator — the redesign must wrap it, not replace it:
 
 ## 3. The hard architectural fact for "Analyze My Business"
 
-`analytics.py` and `insights.py` are tightly coupled to the NexaSphere
+`analytics.py` and `insights.py` are tightly coupled to the Ordino
 schema (specific CSV filenames, specific joins like `sales.merge(products,
 on="product_id")`, specific column names like `revenue`, `gross_profit`,
 `delayed_rate_pct`). They **cannot** be pointed at an arbitrary uploaded CSV
@@ -150,11 +150,11 @@ plan doesn't promise a fidelity Streamlit can't deliver.
 
 ```
 Landing (marketing, no data loaded)
-  └─ CTA: "Explore NexaSphere Demo"  → Demo mode (current app.py content)
+  └─ CTA: "Explore Demo"  → Demo mode (current app.py content)
   └─ CTA: "Analyze My Business"      → Upload workflow → My Business mode
 
 App shell (once past landing)
-  Top bar: workspace switcher — "NexaSphere Demo" | "My Business"
+  Top bar: workspace switcher — "NexaSphere Retail (Demo)" | "My Business"
   Sidebar: Overview · Findings · Ask · Dashboards · Data · AI & Trust
   (Data + capability-matrix panel only meaningful in "My Business" mode)
 ```

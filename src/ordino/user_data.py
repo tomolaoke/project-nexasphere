@@ -1,7 +1,7 @@
 """Generic, schema-agnostic analytics adapter for user-uploaded business data.
 
 This is the "Analyze My Business" pipeline, kept structurally identical to
-the NexaSphere demo pipeline (nexasphere.analytics / insights / nlg) but
+the Ordino demo pipeline (ordino.analytics / insights / nlg) but
 without assuming any fixed schema:
 
     Uploaded CSV
@@ -12,16 +12,16 @@ without assuming any fixed schema:
         -> capability_matrix()        (which analyses this data can support)
         -> generic analytics functions (only run when their required
            canonical columns are present)
-        -> Finding-shaped evidence dicts (nexasphere.insights.Finding)
-        -> nexasphere.nlg (unchanged -- already dataset-agnostic) for
+        -> Finding-shaped evidence dicts (ordino.insights.Finding)
+        -> ordino.nlg (unchanged -- already dataset-agnostic) for
            grounded AI narration.
 
 Nothing in this module (or downstream) ever hands the raw uploaded
 dataframe to an LLM. Every number an AI narrates comes from a dict this
 module computed with pandas, exactly like the demo pipeline.
 
-nexasphere.analytics / nexasphere.insights are intentionally NOT reused
-here: they are hardcoded to the NexaSphere CSV schema (specific joins,
+ordino.analytics / ordino.insights are intentionally NOT reused
+here: they are hardcoded to the Ordino CSV schema (specific joins,
 specific column names) and generalizing them would risk breaking the
 competition demo. This module is a deliberately separate, smaller,
 schema-agnostic engine.
@@ -107,7 +107,7 @@ def load_uploaded_csv(file) -> pd.DataFrame:
         ) from exc
 
     if df.shape[1] == 0:
-        raise DatasetError("This file has no columns NexaSphere can detect.")
+        raise DatasetError("This file has no columns Ordino can detect.")
     if df.shape[0] == 0:
         raise DatasetError("This file has headers but no data rows.")
     if df.shape[0] > MAX_UPLOAD_ROWS:
@@ -217,7 +217,7 @@ def candidate_columns(concept: str, profile: DatasetProfile) -> list[str]:
 
     The mapping UI previously offered every column for every concept, so the
     "Date" dropdown listed numeric revenue columns and "Revenue" listed text
-    names -- the user had to do the type-checking NexaSphere already did during
+    names -- the user had to do the type-checking Ordino already did during
     profiling. Filtering by detected type makes each dropdown answer its own
     question, and prevents mappings that would fail on coercion anyway.
     """
@@ -475,7 +475,7 @@ def data_quality_score(profile: DatasetProfile) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Findings for user data (same Finding shape as nexasphere.insights.Finding)
+# Findings for user data (same Finding shape as ordino.insights.Finding)
 # ---------------------------------------------------------------------------
 
 @dataclass
@@ -551,7 +551,7 @@ def generate_user_findings(cdf: pd.DataFrame, capabilities: dict[str, bool]) -> 
 
 # ---------------------------------------------------------------------------
 # Question routing for user data -- same "keyword -> deterministic calc ->
-# evidence" pattern as nexasphere.qa, but capability-aware: a question is
+# evidence" pattern as ordino.qa, but capability-aware: a question is
 # only answered if the uploaded data actually supports it.
 # ---------------------------------------------------------------------------
 
@@ -595,7 +595,7 @@ def answer_user_question(question: str, cdf: pd.DataFrame, capabilities: dict[st
 
     # Meta-question: answer from the detected capabilities of THIS dataset.
     # Never answer "what can I ask?" with a KPI dump -- see the same fix in
-    # nexasphere.qa for the demo workspace.
+    # ordino.qa for the demo workspace.
     if _any(q, _META_PHRASES):
         supported = [label for label, ok in capabilities.items() if ok]
         if not supported:

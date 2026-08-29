@@ -12,7 +12,7 @@ returns or customer satisfaction quietly deteriorate underneath it.
 
 ## The real problem
 
-It isn't a data shortage. NexaSphere already has sales, product, customer,
+It isn't a data shortage. Ordino already has sales, product, customer,
 inventory, delivery, marketing, employee and target data. The problem is
 **interpretation speed**: a manager who wants to answer "why did profit not
 grow with revenue?" has to manually open several spreadsheets, join them in

@@ -1,4 +1,4 @@
-# Ordino, Explained Simply
+# NexaSphere, Explained Simply
 
 No jargon. If you've never written a line of code, this page is for you.
 

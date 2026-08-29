@@ -2,7 +2,7 @@
 headless = true
 port = 8501
 
-# Light, lavender-tinted product theme (see src/nexasphere/theme.py for the
+# Light, lavender-tinted product theme (see src/ordino/theme.py for the
 # full design system). Streamlit's own widgets pick these up; everything else
 # is styled by the injected CSS.
 [theme]

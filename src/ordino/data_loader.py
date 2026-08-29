@@ -1,7 +1,7 @@
-"""Deterministic, cached loading of the NexaSphere retail dataset.
+"""Deterministic, cached loading of the Ordino retail dataset.
 
 All numbers shown anywhere in the app must trace back to a DataFrame
-produced by this module or by nexasphere.analytics. Nothing here calls
+produced by this module or by ordino.analytics. Nothing here calls
 an LLM. This is the single source of truth for "what is true" in the system.
 """
 from __future__ import annotations
@@ -26,7 +26,7 @@ def _read_csv(name: str) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(
             f"Required dataset file missing: {path}. "
-            "Place the NexaSphere CSV files in the /data directory."
+            "Place the Ordino CSV files in the /data directory."
         )
     parse_dates = _DATE_COLUMNS.get(name)
     df = pd.read_csv(path, parse_dates=parse_dates)

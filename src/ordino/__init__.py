@@ -1,4 +1,4 @@
-"""NexaSphere AI Business Intelligence Assistant -- core package.
+"""Ordino AI Business Intelligence Assistant -- core package.
 
 Layering (see docs/architecture.md):
     data_loader  -> load & join raw CSVs (source of truth)

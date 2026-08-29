@@ -11,7 +11,7 @@ takes 30-60+ minutes per question, repeated every time a new question comes
 up, and is only as good as which spreadsheets the manager remembers to
 check.
 
-**With NexaSphere:** The manager opens one screen and sees the ranked
+**With Ordino:** The manager opens one screen and sees the ranked
 findings immediately (computed in under a second from the full dataset), or
 types the question directly and gets a grounded answer in seconds.
 
@@ -50,7 +50,7 @@ the comparison — this system does all of it on every page load.
   return reason driving it, rather than an aggregate return percentage that
   hides which category and which reason matter.
 
-## Why this generalizes beyond NexaSphere
+## Why this generalizes beyond Ordino
 
 The underlying pattern — join disparate operational datasets, compute
 verified KPIs, rank findings by statistical deviation, explain in plain

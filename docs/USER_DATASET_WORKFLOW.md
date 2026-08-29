@@ -17,7 +17,7 @@ transmitted, gone when the tab closes. Stated as such in-app.
 
 ## 2. Upload — multiple files, multiple formats
 
-Handled by [`ingestion.py`](../src/nexasphere/ingestion.py), which sorts files
+Handled by [`ingestion.py`](../src/ordino/ingestion.py), which sorts files
 into two buckets:
 
 | Bucket | Formats | Role |
@@ -31,7 +31,7 @@ BI tools invent numbers.
 
 **Declined, deliberately:** images and video. Reliable OCR needs a system
 Tesseract binary unavailable on free hosting, and there is no dependable free
-path from video to trustworthy figures. NexaSphere explains why rather than
+path from video to trustworthy figures. Ordino explains why rather than
 returning a plausible guess.
 
 ## 3. Primary table selection
@@ -68,7 +68,7 @@ columns for Return flag. Nothing is analysed until confirmed.
 
 ## 6. Capability matrix — honest limits
 
-NexaSphere reports which of nine analyses the data supports and which it
+Ordino reports which of nine analyses the data supports and which it
 doesn't, with the missing columns named:
 
 ```

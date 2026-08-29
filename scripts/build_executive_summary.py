@@ -1,4 +1,4 @@
-"""Builds docs/NexaSphere-Executive-Summary.pdf -- a plain-English summary
+"""Builds docs/Ordino-Executive-Summary.pdf -- a plain-English summary
 for judges, non-technical reviewers and recruiters. Run with:
     python scripts/build_executive_summary.py
 """
@@ -22,7 +22,7 @@ ACCENT2 = colors.HexColor("#35D0A6")
 INK = colors.HexColor("#1B2444")
 MUTED = colors.HexColor("#5B6785")
 
-OUT_PATH = "docs/NexaSphere-Executive-Summary.pdf"
+OUT_PATH = "docs/Ordino-Executive-Summary.pdf"
 
 styles = getSampleStyleSheet()
 
@@ -51,7 +51,7 @@ def header_footer(canvas: pdfcanvas.Canvas, doc):
     canvas.rect(0, page_h - 0.85 * inch, page_w, 0.85 * inch, fill=1, stroke=0)
     canvas.setFillColor(WHITE)
     canvas.setFont("Helvetica-Bold", 13)
-    canvas.drawString(0.75 * inch, page_h - 0.55 * inch, "NexaSphere")
+    canvas.drawString(0.75 * inch, page_h - 0.55 * inch, "Ordino")
     canvas.setFont("Helvetica", 9.5)
     canvas.setFillColor(ICE)
     canvas.drawString(0.75 * inch, page_h - 0.72 * inch, "AI Business Intelligence Assistant")
@@ -66,7 +66,7 @@ def header_footer(canvas: pdfcanvas.Canvas, doc):
     canvas.setFont("Helvetica", 8)
     canvas.setFillColor(MUTED)
     canvas.drawCentredString(page_w / 2, 0.45 * inch,
-                              f"NexaSphere AI Business Intelligence Assistant  ·  Page {doc.page}")
+                              f"Ordino AI Business Intelligence Assistant  ·  Page {doc.page}")
     canvas.restoreState()
 
 
@@ -83,7 +83,7 @@ def cover_page(canvas: pdfcanvas.Canvas, doc):
     canvas.drawString(0.9 * inch, page_h - 2.1 * inch, "AI BUILDFEST 2026  ·  TRACK 1: AI FOR BUSINESS & PRODUCTIVITY")
     canvas.setFillColor(WHITE)
     canvas.setFont("Helvetica-Bold", 34)
-    canvas.drawString(0.85 * inch, page_h - 2.75 * inch, "NexaSphere")
+    canvas.drawString(0.85 * inch, page_h - 2.75 * inch, "Ordino")
     canvas.setFillColor(ICE)
     canvas.setFont("Helvetica", 18)
     canvas.drawString(0.9 * inch, page_h - 3.2 * inch, "AI Business Intelligence Assistant")
@@ -146,7 +146,7 @@ def build():
     # --- Section 2: Use Case ---
     section(story, "02 · The Use Case", "One screen, the questions a manager actually asks.")
     story.append(Paragraph(
-        "A retail operations or commercial manager opens the NexaSphere AI Business Intelligence "
+        "A retail operations or commercial manager opens the Ordino AI Business Intelligence "
         "Assistant and immediately sees a ranked list of things that need attention today, for example:",
         body_style))
     bullets(story, [
@@ -172,7 +172,7 @@ def build():
     ])
 
     # --- Section 4: Recommendations ---
-    section(story, "04 · Recommendations", "What NexaSphere management should act on.")
+    section(story, "04 · Recommendations", "What Ordino management should act on.")
     bullets(story, [
         "Investigate the pricing and discounting behind recent revenue growth before assuming the growth is healthy.",
         "Review the Audio product category's quality and listing accuracy, given its elevated return rate.",
@@ -185,7 +185,7 @@ def build():
     story.append(Spacer(1, 6))
     vp_table = Table(
         [[Paragraph(
-            "NexaSphere turns disconnected retail data into decisions worth acting on. Unlike a typical "
+            "Ordino turns disconnected retail data into decisions worth acting on. Unlike a typical "
             "AI chatbot bolted onto a spreadsheet, every number it shows comes from a tested, deterministic "
             "calculation &mdash; the AI's only job is to explain that number in plain English, never to "
             "invent it. This means a manager gets the speed of AI with the trustworthiness of a real "

@@ -54,7 +54,7 @@ function pageNum(s, n) {
     x: 0.9, y: 1.35, w: 10.5, h: 0.4, fontFace: "Calibri", fontSize: 13, bold: true,
     color: ACCENT2, charSpacing: 1.5, isTextBox: true, margin: 0,
   });
-  s.addText("NexaSphere", {
+  s.addText("Ordino", {
     x: 0.85, y: 1.9, w: 10.5, h: 1.3, fontFace: "Cambria", fontSize: 60, bold: true,
     color: WHITE, isTextBox: true, margin: 0,
   });
@@ -161,7 +161,7 @@ function pageNum(s, n) {
   }
 
   flow(2.15, "TRADITIONAL BI  (SLOW)", ["Database", "Dashboard", "Human\ninterprets", "Human\ndecides"], MUTED);
-  flow(4.15, "NEXASPHERE  (FAST + SAFE)", ["Business\ndata", "Analytics\nengine", "Verified\nmetrics", "AI\nexplains", "Human\ndecides"], ACCENT2);
+  flow(4.15, "ORDINO  (FAST + SAFE)", ["Business\ndata", "Analytics\nengine", "Verified\nmetrics", "AI\nexplains", "Human\ndecides"], ACCENT2);
 
   s.addText("Same destination - a human decision - reached through verified evidence instead of manual detective work.", {
     x: 0.6, y: 6.3, w: 11.8, h: 0.6, fontFace: "Calibri", fontSize: 14, italic: true, color: ICE, isTextBox: true, margin: 0,
@@ -175,7 +175,7 @@ function pageNum(s, n) {
 {
   const s = darkSlide();
   kicker(s, "Our Solution");
-  s.addText("NexaSphere AI Business Intelligence Assistant", {
+  s.addText("Ordino AI Business Intelligence Assistant", {
     x: 0.6, y: 0.95, w: 12, h: 0.7, fontFace: "Cambria", fontSize: 28, bold: true, color: WHITE, isTextBox: true, margin: 0,
   });
   s.addText("Every number on screen is traceable to a deterministic calculation.", {
@@ -301,7 +301,7 @@ function pageNum(s, n) {
   s.addChart(pres.ChartType.bar, [
     {
       name: "Minutes per business question",
-      labels: ["Manual spreadsheet\ncross-referencing", "NexaSphere\n(Discover / Ask)"],
+      labels: ["Manual spreadsheet\ncross-referencing", "Ordino\n(Discover / Ask)"],
       values: [45, 0.5],
     },
   ], {
@@ -337,7 +337,7 @@ function pageNum(s, n) {
   const s = darkSlide();
   s.addShape(pres.ShapeType.ellipse, { x: -2, y: -2.5, w: 6, h: 6, fill: { color: NAVY2 }, line: { type: "none" } });
 
-  s.addText("NexaSphere", {
+  s.addText("Ordino", {
     x: 0.9, y: 2.0, w: 11.5, h: 1.0, fontFace: "Cambria", fontSize: 42, bold: true, color: WHITE, isTextBox: true, margin: 0,
   });
   s.addText("Turning scattered business data into decisions worth acting on.", {
@@ -357,6 +357,6 @@ function pageNum(s, n) {
   });
 }
 
-pres.writeFile({ fileName: "docs/pitch-deck/NexaSphere-Pitch-Deck.pptx" }).then(() => {
+pres.writeFile({ fileName: "docs/pitch-deck/Ordino-Pitch-Deck.pptx" }).then(() => {
   console.log("Deck written.");
 });

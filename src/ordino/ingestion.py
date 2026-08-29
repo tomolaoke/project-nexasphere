@@ -1,6 +1,6 @@
 """Multi-file, multi-format ingestion for the "Analyze My Business" workspace.
 
-Design principle, carried over from the rest of NexaSphere: be honest about
+Design principle, carried over from the rest of Ordino: be honest about
 what can actually be read. Files are sorted into two buckets, and the
 distinction matters:
 
@@ -135,7 +135,7 @@ def _read_document(ext: str, buf: bytes) -> tuple[str, str]:
             text = "\n".join(pages)[:MAX_DOCUMENT_CHARS]
             if not text.strip():
                 return "", ("No selectable text found — this looks like a scanned PDF. "
-                             "NexaSphere does not run OCR, so its contents can't be read.")
+                             "Ordino does not run OCR, so its contents can't be read.")
             return text, f"Extracted text from {len(reader.pages)} page(s)."
         if ext == ".docx":
             try:
@@ -171,12 +171,12 @@ def ingest_files(uploaded_files) -> list[IngestedFile]:
         if ext in UNSUPPORTED_EXTENSIONS:
             kind_word = UNSUPPORTED_EXTENSIONS[ext]
             reason = (
-                "Image files aren't analyzed — NexaSphere doesn't run OCR, and guessing "
+                "Image files aren't analyzed — Ordino doesn't run OCR, and guessing "
                 "at numbers from a picture would break the guarantee that every figure is "
                 "traceable to a real calculation."
                 if kind_word == "image" else
                 "Video files aren't analyzed. There's no reliable free way to turn a video "
-                "into trustworthy business figures, so NexaSphere declines rather than "
+                "into trustworthy business figures, so Ordino declines rather than "
                 "inventing them."
             )
             results.append(IngestedFile(name, "unsupported", ext, "declined", reason))
@@ -204,7 +204,7 @@ def ingest_files(uploaded_files) -> list[IngestedFile]:
 
         results.append(IngestedFile(
             name, "unsupported", ext, "declined",
-            f"'{ext or 'no extension'}' isn't a format NexaSphere reads.",
+            f"'{ext or 'no extension'}' isn't a format Ordino reads.",
         ))
     return results
 

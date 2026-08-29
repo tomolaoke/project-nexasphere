@@ -1,9 +1,9 @@
-"""NexaSphere AI Business Intelligence Assistant -- Streamlit prototype.
+"""Ordino AI Business Intelligence Assistant -- Streamlit prototype.
 
-Every number on this page is produced by nexasphere.analytics /
-nexasphere.insights (deterministic pandas computation). The optional local
+Every number on this page is produced by ordino.analytics /
+ordino.insights (deterministic pandas computation). The optional local
 LLM (Ollama) is only ever used to rephrase those numbers in plain English --
-see nexasphere.nlg for the enforcement mechanism.
+see ordino.nlg for the enforcement mechanism.
 """
 from __future__ import annotations
 
@@ -29,15 +29,15 @@ try:
 except Exception:
     pass  # no secrets.toml (e.g. local run) -- fine, nlg falls back to Ollama/template
 
-from nexasphere import analytics as an
-from nexasphere import ingestion as ing
-from nexasphere import insights as ins
-from nexasphere import nlg
-from nexasphere import qa
-from nexasphere import theme
-from nexasphere import user_data as ud
+from ordino import analytics as an
+from ordino import ingestion as ing
+from ordino import insights as ins
+from ordino import nlg
+from ordino import qa
+from ordino import theme
+from ordino import user_data as ud
 
-st.set_page_config(page_title="NexaSphere AI Business Intelligence Assistant", page_icon="\U0001F4CA", layout="wide")
+st.set_page_config(page_title="Ordino AI Business Intelligence Assistant", page_icon="\U0001F4CA", layout="wide")
 
 SEVERITY_COLOR = {"critical": "#d64545", "warning": "#e0a72e", "watch": "#3d7dd6", "info": "#3aa66b"}
 SEVERITY_ICON = {"critical": "\U0001F534", "warning": "\U0001F7E0", "watch": "\U0001F535", "info": "\U0001F7E2"}
@@ -67,7 +67,7 @@ def _cached_narrate_finding(finding_dict: dict):
 def _cached_narrate_generic(summary: str, evidence_json: str, recommendation: str):
     """Same caching rationale as _cached_narrate_finding, generalized to any
     (summary, evidence, recommendation) triple -- used for user-uploaded-data
-    findings, which aren't nexasphere.insights.Finding instances.
+    findings, which aren't ordino.insights.Finding instances.
     """
     class _NarratableEvidence:
         pass
@@ -115,10 +115,10 @@ def user_frame():
 
 def render_sidebar():
     business = is_business_workspace()
-    st.sidebar.title(business_name() if business else "NexaSphere")
+    st.sidebar.title(business_name() if business else "Ordino")
     st.sidebar.caption(
         f"{st.session_state.get('ud_biz_industry', '').strip() or 'Your business'} · "
-        "analyzed by NexaSphere" if business
+        "analyzed by Ordino" if business
         else "AI Business Intelligence Assistant · BuildFest 2026"
     )
     _llm_status_badge()
@@ -148,7 +148,7 @@ def render_sidebar():
         if st.session_state.get("ud_filename"):
             st.sidebar.markdown(f"**Source file**\n\n{st.session_state['ud_filename']}")
         st.sidebar.markdown("---")
-        if st.sidebar.button("← Back to NexaSphere demo", use_container_width=True):
+        if st.sidebar.button("← Back to demo workspace", use_container_width=True):
             st.session_state["nx_workspace"] = "demo"
             # Staged rather than assigned, for the same reason as the confirm
             # handler: the nav radio owns this key. Safe here today only
@@ -370,7 +370,7 @@ def render_dashboard_tab():
 
 def render_analyze_my_business_tab():
     st.caption(
-        "Upload your own business dataset (CSV) and NexaSphere profiles it, detects "
+        "Upload your own business dataset (CSV) and Ordino profiles it, detects "
         "what it can reliably analyze, and runs the same deterministic-analytics-first, "
         "AI-explains-the-evidence pipeline used for the demo dataset above -- on your data."
     )
@@ -393,7 +393,7 @@ def render_analyze_my_business_tab():
         "**Analyzed:** CSV, TSV, XLSX, JSON — these produce your KPIs and findings.  \n"
         "**Read for context:** PDF, DOCX, TXT, MD — business notes and targets, never "
         "counted as measured figures.  \n"
-        "**Not analyzed:** images and video — NexaSphere doesn't run OCR or video "
+        "**Not analyzed:** images and video — Ordino doesn't run OCR or video "
         "analysis, and won't guess at numbers it can't verify."
     )
 
@@ -434,7 +434,7 @@ def render_analyze_my_business_tab():
             st.dataframe(pd.DataFrame(relationships), use_container_width=True)
             st.caption(
                 "These tables share an identifier column, so they may be related. "
-                "NexaSphere does not join them automatically — a coincidental shared "
+                "Ordino does not join them automatically — a coincidental shared "
                 "column name would otherwise produce combined figures you never had."
             )
 
@@ -453,21 +453,21 @@ def render_analyze_my_business_tab():
     if "ud_raw_df" not in st.session_state:
         if ingested:
             st.warning(
-                "None of these files contain a table NexaSphere can compute on. "
+                "None of these files contain a table Ordino can compute on. "
                 "Upload at least one CSV, TSV, XLSX or JSON file containing your "
                 "business records to generate KPIs and findings."
             )
         else:
             st.markdown(
                 "_No business data loaded yet. Upload your files above to analyze your own "
-                "business, or explore the NexaSphere demo dataset using the tabs above._"
+                "business, or explore the NexaSphere Retail demo dataset instead._"
             )
         return
 
     if len(ing.data_files(ingested)) > 1:
         st.info(
             f"Analyzing **{st.session_state['ud_filename']}** — the largest table you "
-            "uploaded. Other tables are listed above; NexaSphere analyses one table at a "
+            "uploaded. Other tables are listed above; Ordino analyses one table at a "
             "time rather than merging them on assumptions."
         )
 
@@ -485,7 +485,7 @@ def render_analyze_my_business_tab():
 
     st.markdown("#### Confirm column mapping")
     st.caption(
-        "NexaSphere guessed these mappings from your column names and types. Each dropdown "
+        "Ordino guessed these mappings from your column names and types. Each dropdown "
         "only offers columns of the right kind -- dates for Date, numbers for Revenue, and "
         "so on. Correct anything that's wrong; nothing is analyzed until you confirm."
     )
@@ -593,7 +593,7 @@ def render_analyze_my_business_tab():
     st.markdown("#### Ask a question about your data")
     st.caption(
         "Ask in plain language — formal or casual, including Nigerian English/Pidgin. "
-        "Not sure what's possible? Ask *\"What can I ask?\"* and NexaSphere will answer "
+        "Not sure what's possible? Ask *\"What can I ask?\"* and Ordino will answer "
         "from the columns it actually detected in your files."
     )
     suggestions = [
@@ -939,7 +939,7 @@ def _render_chat(history_key: str, suggestions: list[str], answer_fn, placeholde
 def render_user_ask(cdf, caps):
     st.caption(
         "Ask in plain language — formal or casual, including Nigerian English/Pidgin. "
-        "Not sure what's possible? Ask *\"What can I ask?\"* and NexaSphere answers from "
+        "Not sure what's possible? Ask *\"What can I ask?\"* and Ordino answers from "
         "the columns it detected in your files."
     )
 
@@ -1014,7 +1014,10 @@ def main():
 
     # Navigation sits ABOVE the content it controls, so what you can do is
     # visible before what you're looking at.
-    page, go_home = theme.app_shell(business_name() if business else "NexaSphere Demo")
+    # The demo workspace holds the Case Study 4 retailer's data, so it is named
+    # after that company rather than after the product -- labelling it "Ordino
+    # Demo" would imply Ordino is the retailer.
+    page, go_home = theme.app_shell(business_name() if business else "NexaSphere Retail (Demo)")
     if go_home:
         st.session_state["nx_entered_app"] = False
         st.rerun()
@@ -1032,8 +1035,8 @@ def main():
             theme.page_title("Findings",
                               "What needs management attention right now, ranked by severity.")
             render_findings_tab()
-        elif page == "Ask NexaSphere":
-            theme.page_title("Ask NexaSphere",
+        elif page == "Ask Ordino":
+            theme.page_title("Ask Ordino",
                               "Ask in plain language. Answers are calculated first, then explained.")
             render_ask_tab()
         elif page == "Dashboards":
@@ -1072,7 +1075,7 @@ def main():
         theme.page_title(f"{name} · Findings",
                           "What stands out in your data, with the evidence behind each one.")
         render_user_findings(cdf, caps)
-    elif page == "Ask NexaSphere":
+    elif page == "Ask Ordino":
         theme.page_title(f"Ask about {name}",
                           "Answers are calculated from your data first, then explained.")
         render_user_ask(cdf, caps)

@@ -4,7 +4,7 @@
 
 ```
                     ┌─────────────────────────┐
-                    │        data/*.csv        │   raw NexaSphere dataset
+                    │        data/*.csv        │   raw Ordino dataset
                     └────────────┬─────────────┘
                                  ▼
                     ┌─────────────────────────┐
@@ -122,7 +122,7 @@ what's in-scope for the prototype vs. deferred.
 
 ### Why `user_data.py` is separate from `analytics.py`
 
-`analytics.py` and `insights.py` are deliberately coupled to the NexaSphere
+`analytics.py` and `insights.py` are deliberately coupled to the Ordino
 schema — specific joins (`sales.merge(products, on="product_id")`) and specific
 column names. Generalising them would risk the competition demo. `user_data.py`
 is a smaller, schema-agnostic engine that only computes what the mapped columns

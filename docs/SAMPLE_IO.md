@@ -1,7 +1,7 @@
 # Sample Inputs and Outputs
 
 Real outputs from the running system. Every figure below is produced by
-`nexasphere.analytics`; the AI layer only rephrases them.
+`ordino.analytics`; the AI layer only rephrases them.
 
 ---
 
@@ -86,7 +86,7 @@ returns, Operations, Marketing, People) with example questions.
 
 ---
 
-## 6. Analyze My Business — a non-NexaSphere schema
+## 6. Analyze My Business — a non-Ordino schema
 
 **Input file** `bella_sales.csv` (10 rows):
 

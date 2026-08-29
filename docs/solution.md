@@ -2,7 +2,7 @@
 
 ## Concept
 
-An AI Business Intelligence copilot that turns NexaSphere's disconnected
+An AI Business Intelligence copilot that turns Ordino's disconnected
 retail data into prioritized, evidence-backed findings and plain-language
 answers, without ever letting an AI model invent a metric.
 
@@ -76,7 +76,7 @@ in both; the analytics engine is authoritative in both.
 chart, category breakdown, top three findings.
 **Findings** — six ranked findings with severity, confidence, possible drivers,
 evidence and recommendation.
-**Ask NexaSphere** — streaming chat with persisted history and suggestion chips;
+**Ask Ordino** — streaming chat with persisted history and suggestion chips;
 formal English, casual English or Pidgin.
 **Dashboards** — nine charts across products, regions, returns, delivery,
 employees, segments, campaigns and targets.

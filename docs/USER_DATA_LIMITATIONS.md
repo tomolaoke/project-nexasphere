@@ -1,4 +1,4 @@
-# What NexaSphere Deliberately Won't Do
+# What Ordino Deliberately Won't Do
 
 Each limit below is a choice. The alternative in every case is producing a
 plausible-looking number that isn't backed by evidence, which is the exact
@@ -7,7 +7,7 @@ failure this project is built to avoid.
 ## Won't analyse images or video
 Reliable OCR needs a system Tesseract binary that free hosting doesn't provide,
 and there is no dependable free path from video to trustworthy business
-figures. NexaSphere declines and explains, rather than guessing at numbers in a
+figures. Ordino declines and explains, rather than guessing at numbers in a
 picture.
 
 ## Won't auto-join related tables
